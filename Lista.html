@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sweet Secrets — Lista Completa (Simplificada)</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+         {
+            body { -webkit-print-color-adjust: exact; }
+            .no-print { display: none !important; }
+        }
+        .person-card {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <header class="bg-white shadow-sm border-b-2 border-purple-100">
+        <div class="max-w-7xl mx-auto px-4 py-6">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Sweet Secrets — Lista Completa (Simplificada)</h1>
+            <p class="text-lg text-gray-600 mb-4">Todos os convidados com LinkedIn, Segmento, Rapport e Ideias Sweet</p>
+            
+            <div class="flex flex-wrap gap-3 no-print">
+                <a href="https://docs.google.com/spreadsheets/d/1VYcLatHRfu4W58mLdeoc0m7mm4EA-oKNQMol-W6Lm5M/edit?usp=sharing" 
+                   target="_blank" 
+                   class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                    <i class="fas fa-external-link-alt mr-2"></i>Abrir Planilha Base
+                </a>
+                <button onclick="copyAllLinkedIns()" 
+                        class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                    <i class="fas fa-copy mr-2"></i>Copiar LinkedIn de Todos
+                </button>
+                <button onclick="window.print()" 
+                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-file-pdf mr-2"></i>Exportar PDF
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        <div class="mb-6 no-print">
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <label for="personaFilter" class="block text-sm font-medium text-gray-700 mb-2">Filtrar por Segmento:</label>
+                <select id="personaFilter" onchange="filterPeople()" class="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-md">
+                    <option value="">Todos os Segmentos</option>
+                    <option value="Founder/CEO">Founder/CEO</option>
+                    <option value="Executivo Enterprise">Executivo Enterprise</option>
+                    <option value="Investidor/Finance">Investidor/Finance</option>
+                    <option value="Marketing/Brand">Marketing/Brand</option>
+                    <option value="Loyalty/CRM">Loyalty/CRM</option>
+                    <option value="Creator/Profissional">Creator/Profissional</option>
+                    <option value="GovTech/Regtech">GovTech/Regtech</option>
+                    <option value="Outros">Outros</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="loading" class="text-center py-12">
+            <i class="fas fa-spinner fa-spin text-3xl text-purple-600 mb-4"></i>
+            <p class="text-gray-600">Carregando lista de convidados...</p>
+        </div>
+
+        <div id="peopleContainer" class="space-y-4" style="display: none;">
+        </div>
+
+        <div id="stats" class="mt-8 bg-white p-4 rounded-lg shadow-sm no-print" style="display: none;">
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Estatísticas:</h3>
+            <div id="statsContent" class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm"></div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-100 mt-12 py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-600">
+            <p class="mb-2">
+                <i class="fas fa-shield-alt mr-1"></i>
+                <strong>Privacidade:</strong> Informações públicas processadas para uso interno do Sweet Secrets.
+            </p>
+            <p>
+                <strong>Fonte:</strong> Base de convidados do aniversário Laís Macedo. 
+                <a href="https://docs.google.com/spreadsheets/d/1VYcLatHRfu4W58mLdeoc0m7mm4EA-oKNQMol-W6Lm5M/edit?usp=sharing" target="_blank" class="text-purple-600 hover:underline">docs.google.com</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        let allPeople = [];
+        let filteredPeople = [];
+
+        const personaRules = {
+            'Founder/CEO': {
+                keywords: ['founder', 'ceo', 'co-founder', 'sócio', 'partner', 'presidente'],
+                rapport: [
+                    'Visão estratégica e liderança empresarial',
+                    'Desafios de crescimento e expansão de negócios'
+                ],
+                ideas: [
+                    'Mesa privativa com outros CEOs/Founders para troca de experiências',
+                    'Acesso a networking exclusivo com investidores e mentores'
+                ]
+            },
+            'Executivo Enterprise': {
+                keywords: ['vp', 'vice', 'director', 'diretor', 'head', 'líder', 'gerente', 'manager'],
+                rapport: [
+                    'Gestão de equipes e processos corporativos',
+                    'Networking profissional de alto nível'
+                ],
+                ideas: [
+                    'Jantares curados com outros executivos C-level',
+                    'Espaço privado para reuniões e apresentações corporativas'
+                ]
+            },
+            'Investidor/Finance': {
+                keywords: ['invest', 'wealth', 'banker', 'private', 'corretora', 'finance', 'capital'],
+                rapport: [
+                    'Oportunidades de investimento e mercado de capitais',
+                    'Gestão patrimonial e planejamento financeiro'
+                ],
+                ideas: [
+                    'Encontros discretos com fundadores e oportunidades de investimento',
+                    'Mesa de co-investidores e family offices'
+                ]
+            },
+            'Marketing/Brand': {
+                keywords: ['marketing', 'brand', 'comunicação', 'cmo', 'imc', 'propaganda'],
+                rapport: [
+                    'Estratégias de branding e comunicação premium',
+                    'Tendências de marketing e experiências de marca'
+                ],
+                ideas: [
+                    'Co-criação de experiências exclusivas para marcas',
+                    'Networking com líderes de brand e agências premium'
+                ]
+            },
+            'Loyalty/CRM': {
+                keywords: ['cx', 'loyalty', 'crm', 'voc', 'customer', 'experiência'],
+                rapport: [
+                    'Programas de fidelidade e experiência do cliente',
+                    'Inovação em relacionamento e retenção'
+                ],
+                ideas: [
+                    'Casos práticos de hospitalidade premium e loyalty',
+                    'Mesa de especialistas em customer success'
+                ]
+            },
+            'Creator/Profissional': {
+                keywords: ['arquitet', 'designer', 'cenógrafa', 'historiadora', 'médico', 'jornalista', 'editor', 'artística'],
+                rapport: [
+                    'Expertise técnica e criatividade profissional',
+                    'Projetos autorais e colaborações exclusivas'
+                ],
+                ideas: [
+                    'Espaço para showcases e apresentações criativas',
+                    'Networking com outros profissionais de alto padrão'
+                ]
+            },
+            'GovTech/Regtech': {
+                keywords: ['compras públicas', 'abes', 'gov', 'público'],
+                rapport: [
+                    'Inovação no setor público e regulamentação',
+                    'Tecnologia aplicada a processos governamentais'
+                ],
+                ideas: [
+                    'Mesa de discussão sobre govtech e compliance',
+                    'Networking com líderes de tecnologia e regulação'
+                ]
+            }
+        };
+
+        function classifyPerson(role) {
+            const lowerRole = role.toLowerCase();
+            for (const [persona, rules] of Object.entries(personaRules)) {
+                if (rules.keywords.some(keyword => lowerRole.includes(keyword))) {
+                    return persona;
+                }
+            }
+            return 'Outros';
+        }
+
+        function generateLinkedInUrl(name) {
+            const searchQuery = encodeURIComponent(name.trim());
+            return `https://www.linkedin.com/search/results/people/?keywords=${searchQuery}`;
+        }
+
+        function createPersonCard(person) {
+            const persona = classifyPerson(person.role);
+            const rules = personaRules[persona] || {
+                rapport: ['Networking profissional', 'Experiências exclusivas'],
+                ideas: ['Acesso ao clube premium', 'Eventos curados']
+            };
+
+            return `
+                <div class="person-card bg-white rounded-lg p-6 shadow-sm border border-gray-200" data-persona="${persona}">
+                    <div class="flex flex-col md:flex-row md:items-start gap-4">
+                        <div class="flex-1">
+                            <div class="flex flex-col md:flex-row md:items-center gap-2 mb-3">
+                                <h3 class="text-xl font-semibold text-gray-900">${person.name}</h3>
+                                <span class="px-3 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800 w-fit">
+                                    ${persona}
+                                </span>
+                            </div>
+                            
+                            <p class="text-gray-700 mb-3">${person.role}</p>
+                            
+                            <a href="${generateLinkedInUrl(person.name)}" 
+                               target="_blank" 
+                               class="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4">
+                                <i class="fab fa-linkedin mr-2"></i>
+                                Buscar no LinkedIn
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mt-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-2">
+                                <i class="fas fa-comments text-green-600 mr-2"></i>
+                                Pontos de Rapport
+                            </h4>
+                            <ul class="space-y-1 text-sm text-gray-600">
+                                ${rules.rapport.map(point => `<li>• ${point}</li>`).join('')}
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-semibold text-gray-800 mb-2">
+                                <i class="fas fa-lightbulb text-purple-600 mr-2"></i>
+                                Ideias Sweet Secrets
+                            </h4>
+                            <ul class="space-y-1 text-sm text-gray-600">
+                                ${rules.ideas.map(idea => `<li>• ${idea}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPeople() {
+            const container = document.getElementById('peopleContainer');
+            container.innerHTML = filteredPeople.map(person => createPersonCard(person)).join('');
+        }
+
+        function filterPeople() {
+            const selectedPersona = document.getElementById('personaFilter').value;
+            filteredPeople = selectedPersona ? 
+                allPeople.filter(person => classifyPerson(person.role) === selectedPersona) : 
+                allPeople;
+            renderPeople();
+            updateStats();
+        }
+
+        function updateStats() {
+            const stats = {};
+            filteredPeople.forEach(person => {
+                const persona = classifyPerson(person.role);
+                stats[persona] = (stats[persona] || 0) + 1;
+            });
+
+            const statsContent = document.getElementById('statsContent');
+            statsContent.innerHTML = Object.entries(stats)
+                .sort(([,a], [,b]) => b - a)
+                .map(([persona, count]) => `
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-purple-600">${count}</div>
+                        <div class="text-gray-600">${persona}</div>
+                    </div>
+                `).join('');
+
+            document.getElementById('stats').style.display = 'block';
+        }
+
+        function copyAllLinkedIns() {
+            const csvContent = "Nome,LinkedIn\n" + 
+                filteredPeople.map(person => 
+                    `"${person.name}","${generateLinkedInUrl(person.name)}"`
+                ).join('\n');
+            
+            navigator.clipboard.writeText(csvContent).then(() => {
+                alert(`${filteredPeople.length} LinkedIns copiados para a área de transferência!`);
+            }).catch(() => {
+                // Fallback para navegadores mais antigos
+                const textArea = document.createElement('textarea');
+                textArea.value = csvContent;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert(`${filteredPeople.length} LinkedIns copiados para a área de transferência!`);
+            });
+        }
+
+        async function loadPeople() {
+            try {
+                const response = await fetch('https://docs.google.com/spreadsheets/d/1VYcLatHRfu4W58mLdeoc0m7mm4EA-oKNQMol-W6Lm5M/export?format=csv&gid=875177815');
+                const csvText = await response.text();
+                
+                const lines = csvText.split('\n').filter(line => line.trim());
+                allPeople = lines.map(line => {
+                    const [name, role] = line.split(',').map(item => item.trim().replace(/^"|"$/g, ''));
+                    return { 
+                        name: name || 'Nome não informado', 
+                        role: role || 'Cargo não informado' 
+                    };
+                }).filter(person => person.name && person.name !== 'Nome não informado');
+
+                filteredPeople = allPeople;
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('peopleContainer').style.display = 'block';
+                
+                renderPeople();
+                updateStats();
+                
+            } catch (error) {
+                document.getElementById('loading').innerHTML = `
+                    <i class="fas fa-exclamation-triangle text-3xl text-red-600 mb-4"></i>
+                    <p class="text-red-600">Erro ao carregar a lista. Verifique sua conexão.</p>
+                `;
+                console.error('Erro ao carregar CSV:', error);
+            }
+        }
+
+        // Carregar dados quando a página carregar
+        document.addEventListener('DOMContentLoaded', loadPeople);
+    </script>
+</body>
+</html>
+    <script id="html_badge_script1">
+        window.__genspark_remove_badge_link = "https://www.genspark.ai/api/html_badge/" +
+            "remove_badge?token=To%2FBnjzloZ3UfQdcSaYfDtdcWf%2BuHdZhA9FxuXHHMOAmfTDt2dvhh0PvUrujqg0TdI07WJughpLDg2xLFHvbhUKHxB2XHsYEMfkrfol%2ByQ74ZN5%2FEWClIMtNDxO1WGyE8bvvzmXxhmdL7%2Fcoo7BA08TAmJIAzZln7%2Fl4Ah1agdD9151eVtNV9c3nwk2Ys0DXh4lQcTJGmr%2BDEQZBKTorhFKmwV6xXYjMWsDfg5KAmxLrhqyKoTxwce1BUEzXMS9FbfvCh6n8xOWwTDc%2FxIf4rQuzrm3a8cBp9FV5gYGH%2B%2BS9D28LExS21tBGugRJ%2FLrvdBVVS9dKPA%2BJKpvKI7KU3audXcghgYdIMq2ofGuBlkW6iwGr91xITq6KVGxyS3kxXnYmNXkiUlfgLHT7FxWfKx4Nc75RQ0pstTGvxL3WQ%2BJGli5tdXMdaIdJhsPuVvzCMT9PnF3MXUK8LCWX55KULTE0kpKV32TzGJ0I79y6IcYkmLqLUxIjgVIBnxOxr6adjKN%2BTegV28CZs5W8s0A%2F0caDU6QMC2ZvZfOd%2F4zLlGM%3D";
+        window.__genspark_locale = "pt-BR";
+        window.__genspark_token = "To/BnjzloZ3UfQdcSaYfDtdcWf+uHdZhA9FxuXHHMOAmfTDt2dvhh0PvUrujqg0TdI07WJughpLDg2xLFHvbhUKHxB2XHsYEMfkrfol+yQ74ZN5/EWClIMtNDxO1WGyE8bvvzmXxhmdL7/coo7BA08TAmJIAzZln7/l4Ah1agdD9151eVtNV9c3nwk2Ys0DXh4lQcTJGmr+DEQZBKTorhFKmwV6xXYjMWsDfg5KAmxLrhqyKoTxwce1BUEzXMS9FbfvCh6n8xOWwTDc/xIf4rQuzrm3a8cBp9FV5gYGH++S9D28LExS21tBGugRJ/LrvdBVVS9dKPA+JKpvKI7KU3audXcghgYdIMq2ofGuBlkW6iwGr91xITq6KVGxyS3kxXnYmNXkiUlfgLHT7FxWfKx4Nc75RQ0pstTGvxL3WQ+JGli5tdXMdaIdJhsPuVvzCMT9PnF3MXUK8LCWX55KULTE0kpKV32TzGJ0I79y6IcYkmLqLUxIjgVIBnxOxr6adjKN+TegV28CZs5W8s0A/0caDU6QMC2ZvZfOd/4zLlGM=";
+    </script>
+    
+    <script id="html_notice_dialog_script" src="https://www.genspark.ai/notice_dialog.js"></script>
+    

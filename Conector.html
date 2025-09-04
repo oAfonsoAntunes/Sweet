@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Sweet Secrets — Conexões (Convidados x Membros)</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+         {
+            body { print-color-adjust: exact; }
+            .no-print { display: none !important; }
+        }
+        .connection-card { break-inside: avoid; }
+        .chip { @apply inline-block px-3 py-1 text-xs font-medium rounded-full; }
+        .chip-active { @apply bg-blue-100 text-blue-800 border border-blue-200; }
+        .chip-inactive { @apply bg-gray-100 text-gray-600 border border-gray-200 cursor-pointer hover:bg-gray-200; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-6 max-w-6xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Sweet Secrets — Conexões</h1>
+            <p class="text-lg text-gray-600 mb-4">(Convidados x Membros)</p>
+            <p class="text-sm text-gray-500">Crie conexões quentes com base em cargo, interesses e estilo — pronto para usar hoje</p>
+        </div>
+
+        <!-- CSV Input Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6 no-print">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-upload mr-2 text-blue-600"></i>
+                Configure os Dados
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        CSV dos Membros (Sweet Secrets)
+                    </label>
+                    <input type="text" id="membersCSVUrl" 
+                           placeholder="https://docs.google.com/spreadsheets/d/.../export?format=csv"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                    <p class="text-xs text-gray-500 mt-1">
+                        <strong>Como publicar:</strong> Arquivo > Publicar na Web > Link > selecionar aba > CSV > Publicar
+                    </p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Convidados (Automático)
+                    </label>
+                    <div class="text-sm text-gray-600 p-3 bg-gray-50 rounded-md">
+                        <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                        Carregado automaticamente da 
+                        <a href="https://docs.google.com/spreadsheets/d/1VYcLatHRfu4W58mLdeoc0m7mm4EA-oKNQMol-W6Lm5M/edit?usp=sharing" 
+                           target="_blank" class="text-blue-600 hover:underline">planilha pública</a>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="processBtn" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                <i class="fas fa-cogs mr-2"></i>
+                Processar e Gerar Conexões
+            </button>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="hidden text-center py-8">
+            <i class="fas fa-spinner fa-spin text-4xl text-blue-600 mb-4"></i>
+            <p class="text-gray-600">Processando dados e gerando conexões...</p>
+        </div>
+
+        <!-- Filters -->
+        <div id="filtersSection" class="hidden bg-white rounded-lg shadow-md p-4 mb-6 no-print">
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <label class="text-sm font-medium text-gray-700">Persona:</label>
+                    <div id="personaFilters" class="flex flex-wrap gap-1"></div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <label class="text-sm font-medium text-gray-700">Vertical:</label>
+                    <div id="verticalFilters" class="flex flex-wrap gap-1"></div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <label class="text-sm font-medium text-gray-700">Score mín:</label>
+                    <input type="range" id="scoreFilter" min="0" max="100" value="0" class="w-20">
+                    <span id="scoreValue" class="text-sm text-gray-600">0</span>
+                </div>
+                <button id="showOnlyABtn" class="chip chip-inactive">
+                    Só A (≥75)
+                </button>
+                <button id="exportCSVBtn" class="bg-green-600 text-white px-4 py-1 rounded text-sm hover:bg-green-700">
+                    <i class="fas fa-file-csv mr-1"></i>CSV
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div id="statsSection" class="hidden bg-blue-50 rounded-lg p-4 mb-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div>
+                    <div class="text-2xl font-bold text-blue-600" id="totalConvidados">0</div>
+                    <div class="text-sm text-gray-600">Convidados</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-green-600" id="totalMembros">0</div>
+                    <div class="text-sm text-gray-600">Membros</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-purple-600" id="totalConexoes">0</div>
+                    <div class="text-sm text-gray-600">Conexões</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-orange-600" id="mediaScore">0</div>
+                    <div class="text-sm text-gray-600">Score Médio</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="space-y-4"></div>
+
+        <!-- Footer -->
+        <div class="mt-12 pt-6 border-t text-center text-xs text-gray-500">
+            <p class="mb-2">
+                <strong>Fontes:</strong> 
+                Convidados: <a href="https://docs.google.com/spreadsheets/d/1VYcLatHRfu4W58mLdeoc0m7mm4EA-oKNQMol-W6Lm5M/edit?usp=sharing" 
+                              target="_blank" class="text-blue-600 hover:underline">docs.google.com</a> |
+                Membros: CSV fornecido pelo usuário
+            </p>
+            <p class="text-gray-400">Sweet Secrets Club — Conexões Inteligentes</p>
+        </div>
+    </div>
+
+    <script>
+        // Global data
+        let convidados = [];
+        let membros = [];
+        let conexoes = [];
+        let filteredConexoes = [];
+        
+        // Persona/Vertical inference rules
+        const personaRules = {
+            'Founder/CEO': ['ceo', 'founder', 'co-founder', 'presidente', 'sócio', 'partner', 'proprietário'],
+            'Executivo Enterprise': ['vp', 'vice-president', 'director', 'diretor', 'head', 'líder', 'gerente', 'manager'],
+            'Investidor/Finance': ['invest', 'wealth', 'banker', 'corretora', 'fintech', 'finance', 'financeiro', 'cfo'],
+            'Marketing/Brand': ['marketing', 'brand', 'comunicação', 'cmo', 'imc', 'mídia', 'publicidade'],
+            'Tech/Produto': ['cto', 'developer', 'engineer', 'tech', 'produto', 'sistemas', 'tecnologia', 'it'],
+            'Loyalty/CRM': ['cx', 'loyalty', 'crm', 'voc', 'customer', 'experience', 'relacionamento'],
+            'Creator/Profissional': ['arquiteta', 'designer', 'cenógrafa', 'historiadora', 'médico', 'jornalista', 'editor', 'arte', 'artística'],
+            'GovTech/Regtech': ['compras públicas', 'abes', 'gov', 'governo', 'público', 'regulatório'],
+            'Industry/Operations': ['agro', 'indústria', 'operações', 'supply', 'chain', 'procurement', 'operations']
+        };
+
+        const verticalRules = {
+            'Tech': ['tech', 'tecnologia', 'software', 'digital', 'it', 'sistemas', 'dados', 'ai', 'inteligência'],
+            'Finance': ['finance', 'financeiro', 'banco', 'investment', 'wealth', 'capital', 'fintech'],
+            'Marketing/Mídia': ['marketing', 'mídia', 'comunicação', 'publicidade', 'brand', 'conteúdo', 'editora'],
+            'Consultoria': ['consultoria', 'consulting', 'advisory', 'assessoria', 'serviços'],
+            'Saúde': ['médico', 'saúde', 'health', 'medicina', 'hospitalar', 'clínica'],
+            'Varejo/Consumer': ['varejo', 'retail', 'consumer', 'comércio', 'loja', 'produtos'],
+            'Real Estate': ['imobiliário', 'real estate', 'construção', 'arquitetura', 'urbanismo'],
+            'Educação': ['educação', 'education', 'escola', 'ensino', 'treinamento', 'curso'],
+            'Agro/Industrial': ['agro', 'agricultura', 'indústria', 'industrial', 'manufatura', 'produção'],
+            'Serviços': ['serviços', 'services', 'jurídico', 'legal', 'advocacia', 'contabilidade']
+        };
+
+        // Utility functions
+        function normalizeText(text) {
+            if (!text) return '';
+            return text.toLowerCase()
+                      .normalize('NFD')
+                      .replace(/[\u0300-\u036f]/g, '')
+                      .trim();
+        }
+
+        function inferPersona(cargo) {
+            const normalizedCargo = normalizeText(cargo);
+            for (const [persona, keywords] of Object.entries(personaRules)) {
+                if (keywords.some(keyword => normalizedCargo.includes(keyword))) {
+                    return persona;
+                }
+            }
+            return 'Outros';
+        }
+
+        function inferVertical(cargo, empresa = '') {
+            const text = normalizeText(cargo + ' ' + empresa);
+            for (const [vertical, keywords] of Object.entries(verticalRules)) {
+                if (keywords.some(keyword => text.includes(keyword))) {
+                    return vertical;
+                }
+            }
+            return 'Outros';
+        }
+
+        function parseCSV(csvText) {
+            const lines = [];
+            const rows = csvText.split('\n');
+            
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i].trim();
+                if (!row) continue;
+                
+                const columns = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let j = 0; j < row.length; j++) {
+                    const char = row[j];
+                    
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        columns.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                columns.push(current.trim());
+                
+                if (columns.length >= 2) {
+                    lines.push(columns);
+                }
+            }
+            
+            return lines;
+        }
+
+        function calculateMatchScore(convidado, membro) {
+            let score = 0;
+            
+            // 45% - Vertical/Setor match
+            const convidadoVertical = inferVertical(convidado.cargo, convidado.empresa || '');
+            const membroVertical = inferVertical(membro.cargo, membro.empresa || '');
+            if (convidadoVertical === membroVertical) score += 45;
+            else if (convidadoVertical !== 'Outros' && membroVertical !== 'Outros') {
+                // Partial match for related verticals
+                const related = {
+                    'Tech': ['Consultoria'],
+                    'Finance': ['Consultoria'],
+                    'Marketing/Mídia': ['Consultoria', 'Serviços'],
+                    'Consultoria': ['Tech', 'Finance', 'Marketing/Mídia']
+                };
+                if (related[convidadoVertical]?.includes(membroVertical)) score += 22;
+            }
+            
+            // 25% - Persona match
+            const convidadoPersona = inferPersona(convidado.cargo);
+            const membroPersona = inferPersona(membro.cargo);
+            if (convidadoPersona === membroPersona) score += 25;
+            else if (convidadoPersona !== 'Outros' && membroPersona !== 'Outros') {
+                // Similar seniority levels
+                const similar = {
+                    'Founder/CEO': ['Executivo Enterprise'],
+                    'Executivo Enterprise': ['Founder/CEO'],
+                    'Investidor/Finance': ['Founder/CEO']
+                };
+                if (similar[convidadoPersona]?.includes(membroPersona)) score += 12;
+            }
+            
+            // 20% - Interests match (só membros têm estruturado)
+            if (membro.interesses) {
+                const interests = normalizeText(membro.interesses);
+                const cargoHints = normalizeText(convidado.cargo);
+                
+                if (cargoHints.includes('marketing') && interests.includes('brand')) score += 20;
+                else if (cargoHints.includes('arquitet') && interests.includes('design')) score += 20;
+                else if (cargoHints.includes('esg') && interests.includes('sustentabil')) score += 20;
+                else if (interests.length > 0) score += 5; // Generic interest bonus
+            }
+            
+            // 10% - Networking style compatibility
+            if (membro.estiloNetworking) {
+                const estilo = normalizeText(membro.estiloNetworking);
+                const convidadoPersona = inferPersona(convidado.cargo);
+                
+                if (convidadoPersona === 'Founder/CEO' && estilo.includes('1:1')) score += 10;
+                else if (convidadoPersona === 'Executivo Enterprise' && estilo.includes('jantar')) score += 10;
+                else if (convidadoPersona === 'Marketing/Brand' && estilo.includes('palestra')) score += 10;
+                else score += 3; // Generic networking bonus
+            }
+            
+            return Math.min(100, Math.round(score));
+        }
+
+        function generateRapportPoints(convidado, membro) {
+            const points = [];
+            const convidadoPersona = inferPersona(convidado.cargo);
+            const membroPersona = inferPersona(membro.cargo);
+            
+            // Industry-specific rapport
+            const convidadoVertical = inferVertical(convidado.cargo);
+            if (convidadoVertical === inferVertical(membro.cargo)) {
+                points.push(`Ambos atuam em ${convidadoVertical}`);
+            }
+            
+            // Seniority rapport
+            if (convidadoPersona === membroPersona) {
+                points.push(`Mesmo nível de senioridade (${convidadoPersona})`);
+            } else if (['Founder/CEO', 'Executivo Enterprise'].includes(convidadoPersona) && 
+                      ['Founder/CEO', 'Executivo Enterprise'].includes(membroPersona)) {
+                points.push('Ambos em posições de liderança');
+            }
+            
+            // Interest-based rapport
+            if (membro.interesses) {
+                points.push(`Interesses: ${membro.interesses.split(',')[0]?.trim() || 'networking'}`);
+            }
+            
+            // Default fallback
+            if (points.length === 0) {
+                points.push('Potencial de networking mútuo');
+                points.push('Experiências complementares');
+            } else if (points.length === 1) {
+                points.push('Oportunidade de troca de experiências');
+            }
+            
+            return points.slice(0, 2);
+        }
+
+        function generateIntroPhrase(convidado, membro, motivo) {
+            const nomeConvidado = convidado.nome.split(' ')[0];
+            const nomeMembro = membro.nome.split(' ')[0];
+            
+            const templates = [
+                `${nomeConvidado}, gostaria de te apresentar ${nomeMembro} - vocês têm muito em comum na área de ${motivo.toLowerCase()}`,
+                `${nomeConvidado}, ${nomeMembro} é alguém que você deveria conhecer - ${motivo.toLowerCase()}`,
+                `Acho que vocês vão se conectar bem: ${nomeConvidado} e ${nomeMembro} - ${motivo.toLowerCase()}`
+            ];
+            
+            return templates[Math.floor(Math.random() * templates.length)];
+        }
+
+        async function loadConvidados() {
+            try {
+                const response = await fetch('https://docs.google.com/spreadsheets/d/1VYcLatHRfu4W58mLdeoc0m7mm4EA-oKNQMol-W6Lm5M/export?format=csv&gid=875177815');
+                const csvText = await response.text();
+                const rows = parseCSV(csvText);
+                
+                convidados = rows.map(row => ({
+                    nome: row[0] || '',
+                    cargo: row[1] || '',
+                    empresa: row[1]?.split(' da ').pop() || '',
+                    persona: inferPersona(row[1] || ''),
+                    vertical: inferVertical(row[1] || ''),
+                    linkedinUrl: `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(row[0] || '')}`
+                })).filter(c => c.nome);
+                
+                console.log(`Loaded ${convidados.length} convidados`);
+                return true;
+            } catch (error) {
+                console.error('Error loading convidados:', error);
+                return false;
+            }
+        }
+
+        async function loadMembros(csvUrl) {
+            try {
+                // Handle Google Sheets URLs
+                let url = csvUrl;
+                if (csvUrl.includes('docs.google.com') && !csvUrl.includes('export?format=csv')) {
+                    // Convert to CSV export URL
+                    const sheetId = csvUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/)?.[1];
+                    if (sheetId) {
+                        url = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
+                    }
+                }
+                
+                const response = await fetch(url);
+                const csvText = await response.text();
+                const rows = parseCSV(csvText);
+                
+                // Assuming structure from the member sheet: Nome, Categoria, Cargo, Empresa, Setor, Interesse para conexão, Estilo de Networking, Esportes, Hobbies, Temas de Interesse...
+                membros = rows.slice(1).map(row => ({ // Skip header
+                    nome: row[0] || '',
+                    categoria: row[1] || '',
+                    cargo: row[2] || '',
+                    empresa: row[3] || '',
+                    setor: row[4] || '',
+                    interesses: row[5] || '',
+                    estiloNetworking: row[6] || '',
+                    esportes: row[7] || '',
+                    hobbies: row[8] || '',
+                    temas: row[9] || '',
+                    persona: inferPersona(row[2] || ''),
+                    vertical: inferVertical(row[2] || '', row[3] || '')
+                })).filter(m => m.nome);
+                
+                console.log(`Loaded ${membros.length} membros`);
+                return true;
+            } catch (error) {
+                console.error('Error loading membros:', error);
+                return false;
+            }
+        }
+
+        function generateConnections() {
+            conexoes = [];
+            
+            for (const convidado of convidados) {
+                const memberMatches = membros.map(membro => {
+                    const score = calculateMatchScore(convidado, membro);
+                    const rapportPoints = generateRapportPoints(convidado, membro);
+                    const motivo = `${membro.persona} em ${membro.vertical}`;
+                    const introPhrase = generateIntroPhrase(convidado, membro, motivo);
+                    
+                    return {
+                        membro,
+                        score,
+                        motivo,
+                        rapportPoints,
+                        introPhrase
+                    };
+                }).sort((a, b) => b.score - a.score).slice(0, 3);
+                
+                if (memberMatches.length > 0) {
+                    conexoes.push({
+                        convidado,
+                        matches: memberMatches,
+                        topScore: memberMatches[0].score
+                    });
+                }
+            }
+            
+            filteredConexoes = [...conexoes];
+            console.log(`Generated ${conexoes.length} connections`);
+        }
+
+        function updateStats() {
+            document.getElementById('totalConvidados').textContent = convidados.length;
+            document.getElementById('totalMembros').textContent = membros.length;
+            document.getElementById('totalConexoes').textContent = filteredConexoes.length;
+            
+            const avgScore = filteredConexoes.length > 0 
+                ? Math.round(filteredConexoes.reduce((sum, c) => sum + c.topScore, 0) / filteredConexoes.length)
+                : 0;
+            document.getElementById('mediaScore').textContent = avgScore;
+        }
+
+        function createFilters() {
+            const personas = [...new Set(convidados.map(c => c.persona))].sort();
+            const verticals = [...new Set(convidados.map(c => c.vertical))].sort();
+            
+            const personaContainer = document.getElementById('personaFilters');
+            const verticalContainer = document.getElementById('verticalFilters');
+            
+            personaContainer.innerHTML = personas.map(p => 
+                `<span class="chip chip-inactive" data-filter="persona" data-value="${p}">${p}</span>`
+            ).join('');
+            
+            verticalContainer.innerHTML = verticals.map(v => 
+                `<span class="chip chip-inactive" data-filter="vertical" data-value="${v}">${v}</span>`
+            ).join('');
+            
+            // Add event listeners
+            personaContainer.addEventListener('click', handleFilterClick);
+            verticalContainer.addEventListener('click', handleFilterClick);
+        }
+
+        function handleFilterClick(e) {
+            if (e.target.classList.contains('chip')) {
+                e.target.classList.toggle('chip-active');
+                e.target.classList.toggle('chip-inactive');
+                applyFilters();
+            }
+        }
+
+        function applyFilters() {
+            const activePersonas = Array.from(document.querySelectorAll('[data-filter="persona"].chip-active'))
+                                       .map(chip => chip.dataset.value);
+            const activeVerticals = Array.from(document.querySelectorAll('[data-filter="vertical"].chip-active'))
+                                        .map(chip => chip.dataset.value);
+            const minScore = parseInt(document.getElementById('scoreFilter').value);
+            const showOnlyA = document.getElementById('showOnlyABtn').classList.contains('chip-active');
+            
+            filteredConexoes = conexoes.filter(conexao => {
+                const { convidado, topScore } = conexao;
+                
+                if (activePersonas.length > 0 && !activePersonas.includes(convidado.persona)) return false;
+                if (activeVerticals.length > 0 && !activeVerticals.includes(convidado.vertical)) return false;
+                if (topScore < minScore) return false;
+                if (showOnlyA && topScore < 75) return false;
+                
+                return true;
+            });
+            
+            renderResults();
+            updateStats();
+        }
+
+        function renderResults() {
+            const container = document.getElementById('results');
+            
+            if (filteredConexoes.length === 0) {
+                container.innerHTML = '<div class="text-center py-8 text-gray-500">Nenhuma conexão encontrada com os filtros aplicados.</div>';
+                return;
+            }
+            
+            container.innerHTML = filteredConexoes.map((conexao, index) => {
+                const { convidado, matches } = conexao;
+                const scoreClass = matches[0].score >= 75 ? 'text-green-600' : matches[0].score >= 50 ? 'text-yellow-600' : 'text-red-600';
+                
+                return `
+                    <div class="connection-card bg-white rounded-lg shadow-md p-6 border-l-4 ${matches[0].score >= 75 ? 'border-green-500' : matches[0].score >= 50 ? 'border-yellow-500' : 'border-red-500'}">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-900">${convidado.nome}</h3>
+                                <p class="text-sm text-gray-600">${convidado.cargo}</p>
+                                <div class="flex gap-2 mt-2">
+                                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">${convidado.persona}</span>
+                                    <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">${convidado.vertical}</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-2xl font-bold ${scoreClass}">${matches[0].score}</div>
+                                <div class="text-xs text-gray-500">Score</div>
+                                <a href="${convidado.linkedinUrl}" target="_blank" class="text-blue-600 hover:underline text-xs">
+                                    <i class="fab fa-linkedin mr-1"></i>LinkedIn
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            ${matches.map((match, i) => `
+                                <div class="border-l-2 border-gray-200 pl-4">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">${match.membro.nome}</h4>
+                                            <p class="text-sm text-gray-600">${match.membro.cargo} @ ${match.membro.empresa}</p>
+                                        </div>
+                                        <span class="text-sm font-medium ${match.score >= 75 ? 'text-green-600' : match.score >= 50 ? 'text-yellow-600' : 'text-red-600'}">${match.score}</span>
+                                    </div>
+                                    
+                                    <p class="text-sm text-gray-700 mb-2"><strong>Match:</strong> ${match.motivo}</p>
+                                    
+                                    <div class="text-sm text-gray-600 mb-2">
+                                        <strong>Pontos de rapport:</strong>
+                                        <ul class="list-disc list-inside ml-2">
+                                            ${match.rapportPoints.map(point => `<li>${point}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="text-sm text-gray-700 bg-gray-50 p-2 rounded italic">
+                                        "${match.introPhrase}"
+                                    </div>
+                                    
+                                    <div class="flex gap-2 mt-2">
+                                        <button class="copy-connection text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700" 
+                                                data-connection='${JSON.stringify({convidado: convidado.nome, membro: match.membro.nome, intro: match.introPhrase})}'>
+                                            <i class="fas fa-copy mr-1"></i>Copiar
+                                        </button>
+                                        <button class="mark-done text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700">
+                                            <i class="fas fa-check mr-1"></i>Feita
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Add event listeners
+            container.addEventListener('click', (e) => {
+                if (e.target.classList.contains('copy-connection') || e.target.parentElement.classList.contains('copy-connection')) {
+                    const button = e.target.classList.contains('copy-connection') ? e.target : e.target.parentElement;
+                    const data = JSON.parse(button.dataset.connection);
+                    navigator.clipboard.writeText(`${data.convidado} → ${data.membro}: ${data.intro}`);
+                    button.innerHTML = '<i class="fas fa-check mr-1"></i>Copiado!';
+                    setTimeout(() => {
+                        button.innerHTML = '<i class="fas fa-copy mr-1"></i>Copiar';
+                    }, 2000);
+                }
+                
+                if (e.target.classList.contains('mark-done') || e.target.parentElement.classList.contains('mark-done')) {
+                    const button = e.target.classList.contains('mark-done') ? e.target : e.target.parentElement;
+                    button.classList.remove('bg-green-600', 'hover:bg-green-700');
+                    button.classList.add('bg-gray-400');
+                    button.innerHTML = '<i class="fas fa-check mr-1"></i>Feita';
+                    button.disabled = true;
+                }
+            });
+        }
+
+        function exportToCSV() {
+            const csvContent = [
+                ['Convidado', 'Cargo Convidado', 'Membro', 'Cargo Membro', 'Score', 'Motivo', 'Frase Introdução'],
+                ...filteredConexoes.flatMap(conexao => 
+                    conexao.matches.map(match => [
+                        conexao.convidado.nome,
+                        conexao.convidado.cargo,
+                        match.membro.nome,
+                        `${match.membro.cargo} @ ${match.membro.empresa}`,
+                        match.score,
+                        match.motivo,
+                        match.introPhrase
+                    ])
+                )
+            ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'sweet_secrets_conexoes.csv';
+            link.click();
+        }
+
+        // Event listeners
+        document.getElementById('processBtn').addEventListener('click', async () => {
+            const membersUrl = document.getElementById('membersCSVUrl').value.trim();
+            if (!membersUrl) {
+                alert('Por favor, insira a URL do CSV dos membros.');
+                return;
+            }
+            
+            document.getElementById('loading').classList.remove('hidden');
+            
+            try {
+                const convidadosLoaded = await loadConvidados();
+                const membrosLoaded = await loadMembros(membersUrl);
+                
+                if (convidadosLoaded && membrosLoaded) {
+                    generateConnections();
+                    createFilters();
+                    renderResults();
+                    updateStats();
+                    
+                    document.getElementById('filtersSection').classList.remove('hidden');
+                    document.getElementById('statsSection').classList.remove('hidden');
+                } else {
+                    alert('Erro ao carregar os dados. Verifique as URLs e tente novamente.');
+                }
+            } catch (error) {
+                console.error('Processing error:', error);
+                alert('Erro ao processar os dados: ' + error.message);
+            } finally {
+                document.getElementById('loading').classList.add('hidden');
+            }
+        });
+
+        document.getElementById('scoreFilter').addEventListener('input', (e) => {
+            document.getElementById('scoreValue').textContent = e.target.value;
+            applyFilters();
+        });
+
+        document.getElementById('showOnlyABtn').addEventListener('click', (e) => {
+            e.target.classList.toggle('chip-active');
+            e.target.classList.toggle('chip-inactive');
+            applyFilters();
+        });
+
+        document.getElementById('exportCSVBtn').addEventListener('click', exportToCSV);
+
+        // Initialize with sample URL
+        document.getElementById('membersCSVUrl').value = 'https://docs.google.com/spreadsheets/d/10q4qt5Fvnyc024hlzoblUUirGCKmCl-dCLQNeMsTvls/export?format=csv';
+    </script>
+</body>
+</html>
+    <script id="html_badge_script1">
+        window.__genspark_remove_badge_link = "https://www.genspark.ai/api/html_badge/" +
+            "remove_badge?token=To%2FBnjzloZ3UfQdcSaYfDtMyuB2fEzM6VJSq80DcINqVu7ukTqPw7hvJC1ivNFiLWyw4%2BbTrPNG71YSvltPgyxQTKgEUCw4lnJQUIkTnYD098UMjxyLX7aSGQFfBvCCu56I2tqHs1MYG7sEk%2FM1O4kgm5yW%2F782D6CCdqsvcLWvkWpsdm%2FLnQPi5cNGBI8KfpzWYt1qsfi0zRzJRA4dt4zCi%2FrAR%2FhadOmF7bjiyk2tObEya4mFfHtwCf3ZUrEuEH3tWjGw5bW66dNgwR3sMaHtBjSxiakQvJxvf4b1m008XsWsWX2oIn8EMlUIkmwH4GpPMUkoYlAN7xWrB87tXcBc1q%2BXCiiTmw2FmOfOWzEq%2B97P1CpLnJcS1nD99YwHPFS6Oo5dDquxqapg07N95YCmKvM0remItnhiW1e1AJwNrSh%2BZO1qAouVaEA2nWjNYPO%2BNePca47nEoGbJ5Yxoj1XcY4PrPi5MZuPnjDvDcoR4BZQkDyMfPbjbhAdQvKeJR%2BDop7WSwK1kS%2BSvqpaSoPsf2rhXeuAD9Pha2iyzyT0%3D";
+        window.__genspark_locale = "pt-BR";
+        window.__genspark_token = "To/BnjzloZ3UfQdcSaYfDtMyuB2fEzM6VJSq80DcINqVu7ukTqPw7hvJC1ivNFiLWyw4+bTrPNG71YSvltPgyxQTKgEUCw4lnJQUIkTnYD098UMjxyLX7aSGQFfBvCCu56I2tqHs1MYG7sEk/M1O4kgm5yW/782D6CCdqsvcLWvkWpsdm/LnQPi5cNGBI8KfpzWYt1qsfi0zRzJRA4dt4zCi/rAR/hadOmF7bjiyk2tObEya4mFfHtwCf3ZUrEuEH3tWjGw5bW66dNgwR3sMaHtBjSxiakQvJxvf4b1m008XsWsWX2oIn8EMlUIkmwH4GpPMUkoYlAN7xWrB87tXcBc1q+XCiiTmw2FmOfOWzEq+97P1CpLnJcS1nD99YwHPFS6Oo5dDquxqapg07N95YCmKvM0remItnhiW1e1AJwNrSh+ZO1qAouVaEA2nWjNYPO+NePca47nEoGbJ5Yxoj1XcY4PrPi5MZuPnjDvDcoR4BZQkDyMfPbjbhAdQvKeJR+Dop7WSwK1kS+SvqpaSoPsf2rhXeuAD9Pha2iyzyT0=";
+    </script>
+    
+    <script id="html_notice_dialog_script" src="https://www.genspark.ai/notice_dialog.js"></script>
+    

@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sweet Secrets — Operação de Abordagem Inteligente</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+         {
+            body { -webkit-print-color-adjust: exact; }
+            .no-print { display: none !important; }
+        }
+        .copy-success { background-color: #10b981 !important; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Cabeçalho -->
+        <header class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">Sweet Secrets — Operação de Abordagem Inteligente</h1>
+            <p class="text-xl text-gray-600 mb-6">(Aniversário Laís Macedo)</p>
+            <p class="text-lg text-gray-700 mb-8">Playbook + Dashboard tático para conversas de alto nível e geração de leads (Lista A/B/C, colunas de enriquecimento, scripts e fluxo operacional).</p>
+            
+            <div class="flex flex-wrap gap-4 mb-6">
+                <a href="https://docs.google.com/spreadsheets/d/1VYcLatHRfu4W58mLdeoc0m7mm4EA-oKNQMol-W6Lm5M/edit?usp=sharing" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold">
+                    <i class="fas fa-external-link-alt mr-2"></i>Abrir Planilha Base
+                </a>
+                <button onclick="copyHeaders()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold">
+                    <i class="fas fa-copy mr-2"></i>Copiar Cabeçalhos
+                </button>
+            </div>
+            
+            <p class="text-sm text-gray-600">
+                <strong>Fonte:</strong> Lista base pública (aprox. 100 nomes/cargos) - 
+                <a href="https://docs.google.com/spreadsheets/d/1VYcLatHRfu4W58mLdeoc0m7mm4EA-oKNQMol-W6Lm5M/edit?usp=sharing" class="text-blue-600 hover:underline" target="_blank">docs.google.com</a>
+            </p>
+        </header>
+
+        <!-- Sumário -->
+        <nav class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-4">Índice</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                <a href="#como-usar" class="text-blue-600 hover:underline">1. Como Usar</a>
+                <a href="#enriquecimento" class="text-blue-600 hover:underline">2. Aba Enriquecimento</a>
+                <a href="#segmentacoes" class="text-blue-600 hover:underline">3. Segmentações</a>
+                <a href="#lista-a" class="text-blue-600 hover:underline">4. Lista A - Prioritários</a>
+                <a href="#lista-b" class="text-blue-600 hover:underline">5. Lista B - Pré-aquecer</a>
+                <a href="#scripts" class="text-blue-600 hover:underline">6. Scripts</a>
+                <a href="#fluxo" class="text-blue-600 hover:underline">7. Fluxo Operacional</a>
+                <a href="#followup" class="text-blue-600 hover:underline">8. Templates Follow-up</a>
+            </div>
+        </nav>
+
+        <!-- Como Usar -->
+        <section id="como-usar" class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h2 class="text-3xl font-bold mb-6">Como Usar em 3 Passos</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-blue-50 p-6 rounded-lg border-l-4 border-blue-500">
+                    <div class="text-blue-600 text-2xl mb-2"><i class="fas fa-search"></i></div>
+                    <h3 class="text-xl font-bold mb-2">Passo 1 - Pré</h3>
+                    <p>Priorize a Lista A (abaixo), defina responsáveis e ganchos.</p>
+                </div>
+                <div class="bg-green-50 p-6 rounded-lg border-l-4 border-green-500">
+                    <div class="text-green-600 text-2xl mb-2"><i class="fas fa-comments"></i></div>
+                    <h3 class="text-xl font-bold mb-2">Passo 2 - Durante</h3>
+                    <p>Para cada conversa, registre 3 itens: Interesses_gancho, Oferta_sugerida, Próximo_passo.</p>
+                </div>
+                <div class="bg-purple-50 p-6 rounded-lg border-l-4 border-purple-500">
+                    <div class="text-purple-600 text-2xl mb-2"><i class="fas fa-paper-plane"></i></div>
+                    <h3 class="text-xl font-bold mb-2">Passo 3 - Pós</h3>
+                    <p>Follow-up 48–72h com convite objetivo (jantar fechado, guest pass, tour).</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Enriquecimento -->
+        <section id="enriquecimento" class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h2 class="text-3xl font-bold mb-6">Nova Aba "Enriquecimento"</h2>
+            
+            <div class="mb-6">
+                <button onclick="copyHeaders()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-semibold mb-4">
+                    <i class="fas fa-copy mr-2"></i>Copiar Cabeçalhos CSV
+                </button>
+                <div class="bg-gray-100 p-4 rounded overflow-x-auto">
+                    <code class="text-sm">Nome,Nome_preferido,Cargo_padronizado,Nível_senioridade,Empresa_padronizada,LinkedIn_URL,Instagram_URL,Website,Setor,Subsetor,Tamanho_empresa(estimado),Estágio_empresa,Localidade,Papel_de_decisão(Orçamento/Parcerias/Estratégia),Influência(1-5),Mutuals_membros_Sweet,Conquistas/Notícias_recentes,Interesses_gancho,Ângulo_de_abordagem,Oferta_sugerida,Fit_Membership(0-100),Potencial_Negócios(0-100),Influência_score(0-100),Timing(0-100),Penalidade_risco(0-20),Score_prioridade,Segmento_persona,Vertical,Calor_relacionamento(Quente/Morno/Frio),Urgência(A/B/C),Responsável_hoje,Próximo_passo,Prazo_followup,Status_evento(Convidado/Chegado/Abordado/Combinou_followup),Notas</code>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Validações Sugeridas</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><strong>Segmento_persona:</strong> Founder/CEO; Executivo_Enterprise; Investidor(VC/PE/Anjo); Empresário_tradicional; Creator/Luxo; Serviços_premium</li>
+                        <li><strong>Oferta_sugerida:</strong> Membership; Guest_pass_experience; Jantar_fechado; Programa_Corporate; Patrocínio/Parceria; Curadoria_privada</li>
+                        <li><strong>Vertical:</strong> Tech; Finance; Health; Real_Estate; Consumer; Luxury; Media/Creator; Services</li>
+                        <li><strong>Calor_relacionamento:</strong> Quente; Morno; Frio</li>
+                        <li><strong>Urgência:</strong> A; B; C</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Fórmulas Úteis</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><strong>Score_prioridade:</strong> 0,4*Fit + 0,25*PotNeg + 0,2*Influência + 0,1*Timing – Penalidade</li>
+                        <li><strong>Urgência:</strong> IF(Score>=80, "A", IF(Score>=60, "B", "C"))</li>
+                        <li><strong>Nível_senioridade:</strong> CEO/Founder => C-level; Sócio/Partner => Partner; VP => VP; Diretor/Head => Diretor/Head; Gerente/Manager => Manager; outros => Especialista</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Segmentações -->
+        <section id="segmentacoes" class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h2 class="text-3xl font-bold mb-6">Segmentações e Regras de Prioridade</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Personas</h3>
+                    <div class="space-y-4">
+                        <div class="border-l-4 border-blue-500 pl-4">
+                            <h4 class="font-semibold">Founder/CEO</h4>
+                            <p class="text-sm text-gray-600">Valor: dealflow qualificado, salas privadas para board/clientes</p>
+                        </div>
+                        <div class="border-l-4 border-green-500 pl-4">
+                            <h4 class="font-semibold">Executivo Enterprise</h4>
+                            <p class="text-sm text-gray-600">Valor: relacionamento sênior fora do ambiente corporativo, posicionamento pessoal</p>
+                        </div>
+                        <div class="border-l-4 border-purple-500 pl-4">
+                            <h4 class="font-semibold">Investidor (VC/PE/Anjo)</h4>
+                            <p class="text-sm text-gray-600">Valor: acesso a fundadores e co-investidores, rooms discretas, jantares de LPs</p>
+                        </div>
+                        <div class="border-l-4 border-yellow-500 pl-4">
+                            <h4 class="font-semibold">Empresário Tradicional</h4>
+                            <p class="text-sm text-gray-600">Valor: novos canais B2B, anfitrião de clientes-chave, experiências de alto padrão</p>
+                        </div>
+                        <div class="border-l-4 border-pink-500 pl-4">
+                            <h4 class="font-semibold">Creator/Luxo</h4>
+                            <p class="text-sm text-gray-600">Valor: co-criação de experiências, collabs, brand elevation</p>
+                        </div>
+                        <div class="border-l-4 border-gray-500 pl-4">
+                            <h4 class="font-semibold">Serviços Premium</h4>
+                            <p class="text-sm text-gray-600">Valor: originação de deals com decisores, thought leadership</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Priorização</h3>
+                    <div class="space-y-4">
+                        <div class="bg-red-50 p-4 rounded border-l-4 border-red-500">
+                            <h4 class="font-semibold text-red-700">Urgência A - Abordar Agora</h4>
+                            <p class="text-sm">C-level/Founder/Partner; influência 3–5; mutuals com membros do Sweet</p>
+                        </div>
+                        <div class="bg-yellow-50 p-4 rounded border-l-4 border-yellow-500">
+                            <h4 class="font-semibold text-yellow-700">Urgência B - Pré-aquecer</h4>
+                            <p class="text-sm">Diretoria/heads com budget ou influência; 1–2 mutuals</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded border-l-4 border-gray-500">
+                            <h4 class="font-semibold text-gray-700">Urgência C - Radar</h4>
+                            <p class="text-sm">Manter conversa leve, coletar interesse, seguir no pós</p>
+                        </div>
+                    </div>
+                    
+                    <h4 class="text-lg font-semibold mt-6 mb-2">Calor de Relacionamento</h4>
+                    <ul class="space-y-1 text-sm">
+                        <li><span class="text-green-600 font-semibold">Quente:</span> Ponte forte com membro</li>
+                        <li><span class="text-yellow-600 font-semibold">Morno:</span> 2–3 mutuals</li>
+                        <li><span class="text-gray-600 font-semibold">Frio:</span> Sem ponte</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lista A -->
+        <section id="lista-a" class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h2 class="text-3xl font-bold mb-6">Lista A — Alvos Prioritários para Hoje</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left font-semibold">Nome</th>
+                            <th class="px-4 py-3 text-left font-semibold">Cargo/Empresa</th>
+                            <th class="px-4 py-3 text-left font-semibold">Gancho</th>
+                            <th class="px-4 py-3 text-left font-semibold">Oferta Sugerida</th>
+                            <th class="px-4 py-3 text-left font-semibold">Próximo Passo</th>
+                            <th class="px-4 py-3 text-left font-semibold">Fontes</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-4 py-3 font-semibold">Bruna Infurna</td>
+                            <td class="px-4 py-3">Head Strategic Accounts LATAM @ LinkedIn Ads</td>
+                            <td class="px-4 py-3">Liderança em contas estratégicas e marketing B2B</td>
+                            <td class="px-4 py-3">Jantar fechado com CMOs/VPs</td>
+                            <td class="px-4 py-3">Apresentação a CMO membro + 2 datas</td>
+                            <td class="px-4 py-3">
+                                <a href="https://www.linkedin.com/posts/brunainfurna_leadership-innovation-latinamerica-activity-7316149934544539648-GF7C" target="_blank" class="text-blue-600 hover:underline">LinkedIn</a>, 
+                                <a href="https://www.linkedin.com/posts/brunainfurna_b2bmarketing-influence-video-activity-7328512316876947456-Dpnx" target="_blank" class="text-blue-600 hover:underline">LinkedIn</a>, 
+                                <a href="https://www.youtube.com/shorts/UFCu_1qekoo" target="_blank" class="text-blue-600 hover:underline">YouTube</a>
+                            </td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="px-4 py-3 font-semibold">Bruno Rocha</td>
+                            <td class="px-4 py-3">IMC Director Brasil/Latam @ Kellogg Company</td>
+                            <td class="px-4 py-3">Hospitalidade para clientes/retail</td>
+                            <td class="px-4 py-3">Corporate hosting + co-criação</td>
+                            <td class="px-4 py-3">Tour + jantar com brand/commercial</td>
+                            <td class="px-4 py-3">
+                                <a href="https://br.linkedin.com/in/brunorocha" target="_blank" class="text-blue-600 hover:underline">LinkedIn</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3 font-semibold">Aline Toledo</td>
+                            <td class="px-4 py-3">Sócia Dir. Branding/Marketing @ Grant Thornton Brasil</td>
+                            <td class="px-4 py-3">Programas corporativos/patrocínios</td>
+                            <td class="px-4 py-3">Programa Corporate + jantar WBB/ESG</td>
+                            <td class="px-4 py-3">2 datas + co-host</td>
+                            <td class="px-4 py-3">
+                                <a href="https://br.linkedin.com/in/linetoledo" target="_blank" class="text-blue-600 hover:underline">LinkedIn</a>, 
+                                <a href="https://www.linkedin.com/posts/linetoledo_grant-thornton-inicia-mentoria-women-beyond-activity-7324281357298204672-D1Ab" target="_blank" class="text-blue-600 hover:underline">Post</a>
+                            </td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="px-4 py-3 font-semibold">Anderson Finkbeiner</td>
+                            <td class="px-4 py-3">Sócio @ Monte Bravo Investimentos</td>
+                            <td class="px-4 py-3">HNW/UHNW; jantares de investidores</td>
+                            <td class="px-4 py-3">Mesa de co-investidores + sala privada</td>
+                            <td class="px-4 py-3">Apresentar a investidor membro + guest pass</td>
+                            <td class="px-4 py-3">
+                                <a href="https://br.linkedin.com/in/andersonfinkbeiner" target="_blank" class="text-blue-600 hover:underline">LinkedIn</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3 font-semibold">Cammila Yochabell</td>
+                            <td class="px-4 py-3">Founder & CEO @ Jobecam</td>
+                            <td class="px-4 py-3">HR tech e D&I; rodada recente</td>
+                            <td class="px-4 py-3">Founders + HR leaders</td>
+                            <td class="px-4 py-3">2–3 conexões HR enterprise</td>
+                            <td class="px-4 py-3">
+                                <a href="https://br.linkedin.com/in/cammilayochabell/en" target="_blank" class="text-blue-600 hover:underline">LinkedIn</a>, 
+                                <a href="https://revistapegn.globo.com/startups/noticia/2023/03/jobecam-recebe-aporte-de-r-4-milhoes-em-rodada-com-ex-presidente-do-banco-central.ghtml" target="_blank" class="text-blue-600 hover:underline">PE&GN</a>
+                            </td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="px-4 py-3 font-semibold">André Cruz</td>
+                            <td class="px-4 py-3">Founder & CEO @ Neura</td>
+                            <td class="px-4 py-3">Talks/workshops para CMOs</td>
+                            <td class="px-4 py-3">Jantar temático de neurobranding</td>
+                            <td class="px-4 py-3">Apresentar a 1–2 CMOs + convite talk</td>
+                            <td class="px-4 py-3">
+                                <a href="https://br.linkedin.com/in/andrecruzneura/en" target="_blank" class="text-blue-600 hover:underline">LinkedIn</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3 font-semibold">Carlos Sarli (Califa)</td>
+                            <td class="px-4 py-3">Diretor Superintendente @ Trip Editora</td>
+                            <td class="px-4 py-3">Parcerias editoriais/experiências Trip</td>
+                            <td class="px-4 py-3">Co-host de noite temática cultural</td>
+                            <td class="px-4 py-3">Conectar a membro de media/brand</td>
+                            <td class="px-4 py-3">
+                                <a href="https://br.linkedin.com/in/carlos-sarli-2aa027161" target="_blank" class="text-blue-600 hover:underline">LinkedIn</a>, 
+                                <a href="https://www.meioemensagem.com.br/midia/aos-30-trip-alimenta-projetos-customizados-para-marcas" target="_blank" class="text-blue-600 hover:underline">Meio&Mensagem</a>, 
+                                <a href="https://revistatrip.uol.com.br/trip-transformadores/uma-noite-para-mudar-pessoas" target="_blank" class="text-blue-600 hover:underline">Revista Trip</a>
+                            </td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="px-4 py-3 font-semibold">Carolina Agueda</td>
+                            <td class="px-4 py-3">CX/VoC/Qualidade @ Livelo</td>
+                            <td class="px-4 py-3">Loyalty/engajamento premium</td>
+                            <td class="px-4 py-3">Jantar loyalty/CRM + visita técnica</td>
+                            <td class="px-4 py-3">Apresentar a membro de CRM; 2 datas</td>
+                            <td class="px-4 py-3">
+                                <a href="https://www.linkedin.com/in/carolina-agueda-a4030427/" target="_blank" class="text-blue-600 hover:underline">Perfil</a>, 
+                                <a href="https://pt.linkedin.com/posts/carolina-agueda-a4030427_gostaria-de-compartilhar-que-estou-come%C3%A7ando-activity-7345910974807171073-GwmI" target="_blank" class="text-blue-600 hover:underline">Post</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3 font-semibold">Bruno Galetti</td>
+                            <td class="px-4 py-3">Executivo de Negócios @ TOTVS</td>
+                            <td class="px-4 py-3">Pipeline B2B enterprise</td>
+                            <td class="px-4 py-3">Guest pass + jantar enterprise</td>
+                            <td class="px-4 py-3">Conectar a CRO/CIO membro; 2 datas</td>
+                            <td class="px-4 py-3">
+                                <a href="https://br.linkedin.com/in/brunogaletti" target="_blank" class="text-blue-600 hover:underline">LinkedIn</a>, 
+                                <a href="https://www.instagram.com/brunogaletti_/" target="_blank" class="text-blue-600 hover:underline">Instagram</a>
+                            </td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="px-4 py-3 font-semibold">Camila Moura</td>
+                            <td class="px-4 py-3">Founder & CEO @ Interage Cultural</td>
+                            <td class="px-4 py-3">Experiências culturais corporativas</td>
+                            <td class="px-4 py-3">Co-host ESG</td>
+                            <td class="px-4 py-3">Apresentar a membros ESG</td>
+                            <td class="px-4 py-3">
+                                <a href="https://br.linkedin.com/in/camila-moura-oliveira" target="_blank" class="text-blue-600 hover:underline">LinkedIn</a>, 
+                                <a href="https://www.linkedin.com/company/interage-cultural" target="_blank" class="text-blue-600 hover:underline">Empresa</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3 font-semibold">Anna Valle</td>
+                            <td class="px-4 py-3">Founder & COO @ Flowls</td>
+                            <td class="px-4 py-3">Fórum de supply/supply-chain</td>
+                            <td class="px-4 py-3">Jantar líderes logística/comex</td>
+                            <td class="px-4 py-3">Convite para mesa temática</td>
+                            <td class="px-4 py-3">
+                                <a href="https://br.linkedin.com/in/anna-valle" target="_blank" class="text-blue-600 hover:underline">LinkedIn</a>, 
+                                <a href="https://br.linkedin.com/company/flowlsscp" target="_blank" class="text-blue-600 hover:underline">Flowls</a>
+                            </td>
+                        </tr>
+                        <tr class="bg-gray-50">
+                            <td class="px-4 py-3 font-semibold">Camila Cristina Murta</td>
+                            <td class="px-4 py-3">Líder GT Compras Públicas @ ABES</td>
+                            <td class="px-4 py-3">Govtech/regtech, influência setorial</td>
+                            <td class="px-4 py-3">Mesa govtech</td>
+                            <td class="px-4 py-3">Apresentar a tech/regulação</td>
+                            <td class="px-4 py-3">
+                                <a href="https://br.linkedin.com/in/camilamurta" target="_blank" class="text-blue-600 hover:underline">LinkedIn</a>, 
+                                <a href="https://pt.linkedin.com/posts/abes-software_cidadesinteligentes-parceriaspublicoprivadas-activity-7281034264937218048-BsSM" target="_blank" class="text-blue-600 hover:underline">ABES</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Lista B -->
+        <section id="lista-b" class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h2 class="text-3xl font-bold mb-6">Lista B — Pré-aquecer Hoje</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex items-center p-4 bg-yellow-50 rounded-lg">
+                    <div class="w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
+                    <div>
+                        <h4 class="font-semibold">Carol Manciola</h4>
+                        <p class="text-sm text-gray-600">CEO @ Conectas (educação corporativa/learning)</p>
+                        <a href="https://br.linkedin.com/in/carolmanciola" target="_blank" class="text-blue-600 hover:underline text-xs">LinkedIn</a>
+                    </div>
+                </div>
+                <div class="flex items-center p-4 bg-yellow-50 rounded-lg">
+                    <div class="w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
+                    <div>
+                        <h4 class="font-semibold">Carolina Fernandes</h4>
+                        <p class="text-sm text-gray-600">CEO @ Cubo Comunicação</p>
+                        <a href="https://docs.google.com/spreadsheets/d/1VYcLatHRfu4W58mLdeoc0m7mm4EA-oKNQMol-W6Lm5M/edit?usp=sharing" target="_blank" class="text-blue-600 hover:underline text-xs">docs.google.com</a>
+                    </div>
+                </div>
+                <div class="flex items-center p-4 bg-yellow-50 rounded-lg">
+                    <div class="w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
+                    <div>
+                        <h4 class="font-semibold">Chris Ayrosa</h4>
+                        <p class="text-sm text-gray-600">Cenógrafa/Historiadora (curadoria estética)</p>
+                        <a href="https://docs.google.com/spreadsheets/d/1VYcLatHRfu4W58mLdeoc0m7mm4EA-oKNQMol-W6Lm5M/edit?usp=sharing" target="_blank" class="text-blue-600 hover:underline text-xs">docs.google.com</a>
+                    </div>
+                </div>
+                <div class="flex items-center p-4 bg-yellow-50 rounded-lg">
+                    <div class="w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
+                    <div>
+                        <h4 class="font-semibold">Caio Camarinha</h4>
+                        <p class="text-sm text-gray-600">CEO @ Camarinha Comunicação</p>
+                        <a href="https://docs.google.com/spreadsheets/d/1VYcLatHRfu4W58mLdeoc0m7mm4EA-oKNQMol-W6Lm5M/edit?usp=sharing" target="_blank" class="text-blue-600 hover:underline text-xs">docs.google.com</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Scripts -->
+        <section id="scripts" class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h2 class="text-3xl font-bold mb-6">Scripts Ultra-curtos</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="border rounded-lg p-4">
+                    <h3 class="font-bold text-blue-600 mb-2"><i class="fas fa-play mr-2"></i>Abertura</h3>
+                    <p class="text-sm">"Vi que você está à frente de [área/cargo]. Aqui, vários líderes têm usado o espaço para [board/jantar/clients]. Quer te conectar 5 min com [membro X]?"</p>
+                </div>
+                <div class="border rounded-lg p-4">
+                    <h3 class="font-bold text-green-600 mb-2"><i class="fas fa-check mr-2"></i>Validação</h3>
+                    <p class="text-sm">"Você costuma receber clientes em lugares privados? Prefere jantar curado com 8–10 pessoas ou uma experiência menor?"</p>
+                </div>
+                <div class="border rounded-lg p-4">
+                    <h3 class="font-bold text-purple-600 mb-2"><i class="fas fa-handshake mr-2"></i>Fecho</h3>
+                    <p class="text-sm">"Se fizer sentido, te mostro o espaço rapidinho e te apresento [perfil Y]. Ou te mando amanhã duas datas de um jantar fechado?"</p>
+                </div>
+            </div>
+
+            <div class="mt-8">
+                <h3 class="text-xl font-bold mb-4">Scripts por Persona</h3>
+                <button onclick="copyScripts()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-semibold mb-4">
+                    <i class="fas fa-copy mr-2"></i>Copiar Scripts
+                </button>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div class="bg-blue-50 p-4 rounded border-l-4 border-blue-500">
+                        <h4 class="font-semibold mb-2">Founder/CEO</h4>
+                        <p>"Vi sua expansão em [mercado]. Temos founders que usam o espaço para boards discretos; te apresento um deles agora?"</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded border-l-4 border-green-500">
+                        <h4 class="font-semibold mb-2">Executivo Enterprise</h4>
+                        <p>"Muitos VPs/Diretores vêm aqui para relações fora do corporativo. Quer conhecer quem lidera [área X] em [empresa Y]?"</p>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded border-l-4 border-purple-500">
+                        <h4 class="font-semibold mb-2">Investidor</h4>
+                        <p>"Temos jantares de LPs/co-investidores. Posso te incluir no próximo ou te apresentar hoje o [investidor Z]?"</p>
+                    </div>
+                    <div class="bg-yellow-50 p-4 rounded border-l-4 border-yellow-500">
+                        <h4 class="font-semibold mb-2">Empresário Tradicional</h4>
+                        <p>"Alguns clientes usam o clube para receber top clientes. Quer ver como a hospitalidade funciona na prática?"</p>
+                    </div>
+                    <div class="bg-pink-50 p-4 rounded border-l-4 border-pink-500">
+                        <h4 class="font-semibold mb-2">Creator/Luxo</h4>
+                        <p>"Vivemos experiências co-criadas com marcas/público A. Te mostro um case rápido e apresento o host?"</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded border-l-4 border-gray-500">
+                        <h4 class="font-semibold mb-2">Serviços Premium</h4>
+                        <p>"Muitos M&A/Wealth usam aqui para originação discreta. Quer 5 min com um sócio que faz isso no dia a dia?"</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fluxo -->
+        <section id="fluxo" class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h2 class="text-3xl font-bold mb-6">Fluxo Operacional no Evento</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="text-center p-6 bg-blue-50 rounded-lg">
+                    <div class="text-blue-600 text-3xl mb-3"><i class="fas fa-search"></i></div>
+                    <h3 class="text-xl font-bold mb-2">Hunter</h3>
+                    <p class="text-sm">Abre conversa em 30–60s e qualifica em até 2 min</p>
+                </div>
+                <div class="text-center p-6 bg-green-50 rounded-lg">
+                    <div class="text-green-600 text-3xl mb-3"><i class="fas fa-link"></i></div>
+                    <h3 class="text-xl font-bold mb-2">Connector</h3>
+                    <p class="text-sm">Traz membro-ponte para conexão quente em 1 min</p>
+                </div>
+                <div class="text-center p-6 bg-purple-50 rounded-lg">
+                    <div class="text-purple-600 text-3xl mb-3"><i class="fas fa-edit"></i></div>
+                    <h3 class="text-xl font-bold mb-2">Scribe</h3>
+                    <p class="text-sm">Registra dados na planilha (celular)</p>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h3 class="text-lg font-bold mb-4">Checklist de Registro Rápido</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                    <label class="flex items-center">
+                        <input type="checkbox" class="mr-2"> Papel_de_decisão
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" class="mr-2"> Interesses_gancho
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" class="mr-2"> Oferta_sugerida
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" class="mr-2"> Próximo_passo
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" class="mr-2"> Responsável_hoje
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" class="mr-2"> Urgência
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- Follow-up -->
+        <section id="followup" class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h2 class="text-3xl font-bold mb-6">Templates de Follow-up (48–72h)</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="border rounded-lg p-4">
+                    <h3 class="font-bold text-blue-600 mb-3"><i class="fas fa-envelope mr-2"></i>Jantar Fechado</h3>
+                    <div class="bg-gray-50 p-3 rounded text-sm">
+                        <p class="mb-2">Olá [Nome],</p>
+                        <p class="mb-2">Foi um prazer te conhecer ontem no aniversário da Laís! Como conversamos sobre [gancho], gostaria de te convidar para um jantar fechado com outros [perfil similar] na próxima semana.</p>
+                        <p class="mb-2">Duas opções: [Data 1] ou [Data 2], das 19h30 às 22h.</p>
+                        <p>Me confirma qual funciona melhor?</p>
+                    </div>
+                </div>
+                
+                <div class="border rounded-lg p-4">
+                    <h3 class="font-bold text-green-600 mb-3"><i class="fas fa-ticket-alt mr-2"></i>Guest Pass</h3>
+                    <div class="bg-gray-50 p-3 rounded text-sm">
+                        <p class="mb-2">Oi [Nome]!</p>
+                        <p class="mb-2">Lembrei da nossa conversa sobre [interesse]. Te liberei um guest pass para nossa próxima noite de curadoria sobre [tema].</p>
+                        <p class="mb-2">Vai ser no dia [Data], das [Horário]. Ambiente bem reservado, máximo 15 pessoas.</p>
+                        <p>Confirma presença?</p>
+                    </div>
+                </div>
+                
+                <div class="border rounded-lg p-4">
+                    <h3 class="font-bold text-purple-600 mb-3"><i class="fas fa-eye mr-2"></i>Tour Privado</h3>
+                    <div class="bg-gray-50 p-3 rounded text-sm">
+                        <p class="mb-2">[Nome], que bom te encontrar!</p>
+                        <p class="mb-2">Como você demonstrou interesse em conhecer melhor o Sweet, que tal agendar um tour privado? Posso te mostrar os espaços e apresentar alguns membros do seu setor.</p>
+                        <p class="mb-2">Tenho disponibilidade na [Data 1] às [Horário] ou [Data 2] às [Horário].</p>
+                        <p>Qual te convém mais?</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6">
+                <button onclick="copyFollowup()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-semibold">
+                    <i class="fas fa-copy mr-2"></i>Copiar Templates
+                </button>
+            </div>
+        </section>
+
+        <!-- Rodapé -->
+        <footer class="bg-gray-800 text-white rounded-lg p-8">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold mb-2">Sweet Secrets</h2>
+                <p class="text-gray-300">Operação de Abordagem Inteligente - Aniversário Laís Macedo</p>
+            </div>
+            
+            <div class="border-t border-gray-700 pt-6">
+                <h3 class="text-lg font-semibold mb-4">Observações Importantes</h3>
+                <ul class="space-y-2 text-sm text-gray-300">
+                    <li><i class="fas fa-shield-alt mr-2"></i>Manter discrição e privacidade em todas as abordagens</li>
+                    <li><i class="fas fa-handshake mr-2"></i>Focar na curadoria e valor, nunca em pressão comercial</li>
+                    <li><i class="fas fa-users mr-2"></i>Usar membros-ponte sempre que possível para introduções</li>
+                    <li><i class="fas fa-clock mr-2"></i>Follow-up estruturado em 48–72h com próximos passos claros</li>
+                </ul>
+            </div>
+            
+            <div class="border-t border-gray-700 pt-6 mt-6">
+                <p class="text-xs text-gray-400">
+                    <strong>Fontes:</strong> Dados enriquecidos através de pesquisa pública em LinkedIn, sites corporativos e mídia especializada. 
+                    Lista base disponível em <a href="https://docs.google.com/spreadsheets/d/1VYcLatHRfu4W58mLdeoc0m7mm4EA-oKNQMol-W6Lm5M/edit?usp=sharing" class="text-blue-400 hover:underline" target="_blank">docs.google.com</a>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        function copyHeaders() {
+            const headers = "Nome,Nome_preferido,Cargo_padronizado,Nível_senioridade,Empresa_padronizada,LinkedIn_URL,Instagram_URL,Website,Setor,Subsetor,Tamanho_empresa(estimado),Estágio_empresa,Localidade,Papel_de_decisão(Orçamento/Parcerias/Estratégia),Influência(1-5),Mutuals_membros_Sweet,Conquistas/Notícias_recentes,Interesses_gancho,Ângulo_de_abordagem,Oferta_sugerida,Fit_Membership(0-100),Potencial_Negócios(0-100),Influência_score(0-100),Timing(0-100),Penalidade_risco(0-20),Score_prioridade,Segmento_persona,Vertical,Calor_relacionamento(Quente/Morno/Frio),Urgência(A/B/C),Responsável_hoje,Próximo_passo,Prazo_followup,Status_evento(Convidado/Chegado/Abordado/Combinou_followup),Notas";
+            
+            navigator.clipboard.writeText(headers).then(function() {
+                showCopySuccess();
+            });
+        }
+        
+        function copyScripts() {
+            const scripts = `Scripts por Persona:
+
+Founder/CEO: "Vi sua expansão em [mercado]. Temos founders que usam o espaço para boards discretos; te apresento um deles agora?"
+
+Executivo Enterprise: "Muitos VPs/Diretores vêm aqui para relações fora do corporativo. Quer conhecer quem lidera [área X] em [empresa Y]?"
+
+Investidor: "Temos jantares de LPs/co-investidores. Posso te incluir no próximo ou te apresentar hoje o [investidor Z]?"
+
+Empresário Tradicional: "Alguns clientes usam o clube para receber top clientes. Quer ver como a hospitalidade funciona na prática?"
+
+Creator/Luxo: "Vivemos experiências co-criadas com marcas/público A. Te mostro um case rápido e apresento o host?"
+
+Serviços Premium: "Muitos M&A/Wealth usam aqui para originação discreta. Quer 5 min com um sócio que faz isso no dia a dia?"`;
+            
+            navigator.clipboard.writeText(scripts).then(function() {
+                showCopySuccess();
+            });
+        }
+        
+        function copyFollowup() {
+            const templates = `Templates de Follow-up:
+
+JANTAR FECHADO:
+Olá [Nome],
+Foi um prazer te conhecer ontem no aniversário da Laís! Como conversamos sobre [gancho], gostaria de te convidar para um jantar fechado com outros [perfil similar] na próxima semana.
+Duas opções: [Data 1] ou [Data 2], das 19h30 às 22h.
+Me confirma qual funciona melhor?
+
+GUEST PASS:
+Oi [Nome]!
+Lembrei da nossa conversa sobre [interesse]. Te liberei um guest pass para nossa próxima noite de curadoria sobre [tema].
+Vai ser no dia [Data], das [Horário]. Ambiente bem reservado, máximo 15 pessoas.
+Confirma presença?
+
+TOUR PRIVADO:
+[Nome], que bom te encontrar!
+Como você demonstrou interesse em conhecer melhor o Sweet, que tal agendar um tour privado? Posso te mostrar os espaços e apresentar alguns membros do seu setor.
+Tenho disponibilidade na [Data 1] às [Horário] ou [Data 2] às [Horário].
+Qual te convém mais?`;
+            
+            navigator.clipboard.writeText(templates).then(function() {
+                showCopySuccess();
+            });
+        }
+        
+        function showCopySuccess() {
+            // Create temporary success message
+            const message = document.createElement('div');
+            message.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50';
+            message.textContent = 'Copiado com sucesso!';
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                document.body.removeChild(message);
+            }, 2000);
+        }
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+    <script id="html_badge_script1">
+        window.__genspark_remove_badge_link = "https://www.genspark.ai/api/html_badge/" +
+            "remove_badge?token=To%2FBnjzloZ3UfQdcSaYfDsx%2FcKaG%2FiacvheeaSNvTZF7wUwGRHvv8vcX4xxMM%2FNIsFCoJRGG9imvevGqZIiwtwSeJxniU9NPEJWPw1YnaQg880olVpDoS1vcGKv6GmW5zXMzDbp7R%2F%2BZLEgM4cgAHvU25RqPG4jEsP5hHkYtNZ%2FGDHTVbz6BzdSQjt9WDWB8GXBq5Ms4LIlaFyCFbMmtYsbpwJ7pb6n3V87%2BfNkK56IjjNnwHRMGyKUECMFj2Hi8%2ByvHL1%2BjEwjtakyQv4EhXgPtWIKUYWGHK3cFY%2BsIoYjElx%2BsTy1qd72zpw5eM3RHrVW6CWQ6HaoBYX9yTIm8w8238FyRVw1o88Z9sdVir2z9KlTepU1i2RC0kUXZGb0L8lPnCY4mI5kviLYv%2BFZrxDGPBie12myXosumFS%2BTMFQ%2B0mbET9l7fFKY8MCC9zgxpz1%2F2WSm4z7582ntQBfqxQYZG25YECZeS7WH4iDDxefedFwQAiKAPqwe5glI1Bas0bQFs5i0FGCrFG7%2FDrZVMpeZd6wCwOuiF8RJj%2F%2FTaZY%3D";
+        window.__genspark_locale = "pt-BR";
+        window.__genspark_token = "To/BnjzloZ3UfQdcSaYfDsx/cKaG/iacvheeaSNvTZF7wUwGRHvv8vcX4xxMM/NIsFCoJRGG9imvevGqZIiwtwSeJxniU9NPEJWPw1YnaQg880olVpDoS1vcGKv6GmW5zXMzDbp7R/+ZLEgM4cgAHvU25RqPG4jEsP5hHkYtNZ/GDHTVbz6BzdSQjt9WDWB8GXBq5Ms4LIlaFyCFbMmtYsbpwJ7pb6n3V87+fNkK56IjjNnwHRMGyKUECMFj2Hi8+yvHL1+jEwjtakyQv4EhXgPtWIKUYWGHK3cFY+sIoYjElx+sTy1qd72zpw5eM3RHrVW6CWQ6HaoBYX9yTIm8w8238FyRVw1o88Z9sdVir2z9KlTepU1i2RC0kUXZGb0L8lPnCY4mI5kviLYv+FZrxDGPBie12myXosumFS+TMFQ+0mbET9l7fFKY8MCC9zgxpz1/2WSm4z7582ntQBfqxQYZG25YECZeS7WH4iDDxefedFwQAiKAPqwe5glI1Bas0bQFs5i0FGCrFG7/DrZVMpeZd6wCwOuiF8RJj//TaZY=";
+    </script>
+    
+    <script id="html_notice_dialog_script" src="https://www.genspark.ai/notice_dialog.js"></script>
+    

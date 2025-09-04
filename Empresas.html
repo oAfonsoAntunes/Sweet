@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sweet Secrets — Empresas & Setores (Beta)</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        .company-table { font-size: 0.875rem; }
+        .company-table th, .company-table td { padding: 0.5rem; border-bottom: 1px solid #e5e7eb; }
+        .company-table th { background-color: #f9fafb; font-weight: 600; }
+        .company-table tr:hover { background-color: #f3f4f6; }
+        @media (max-width: 768px) {
+            .company-table { font-size: 0.75rem; }
+            .company-table th, .company-table td { padding: 0.375rem; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-6 max-w-7xl">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Sweet Secrets — Empresas & Setores (Beta)</h1>
+            <p class="text-lg text-gray-600 mb-4">Mapa de empresas: o que faz, setor/subsetor, modelo, sede e fonte — com filtros e exportação</p>
+            <div class="flex flex-wrap justify-center gap-2">
+                <button onclick="exportToCSV()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
+                    <i class="fas fa-download mr-1"></i>Exportar CSV
+                </button>
+                <button onclick="window.print()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">
+                    <i class="fas fa-file-pdf mr-1"></i>Imprimir/PDF
+                </button>
+                <a href="https://docs.google.com/spreadsheets/d/1VYcLatHRfu4W58mLdeoc0m7mm4EA-oKNQMol-W6Lm5M/edit?usp=sharing" target="_blank" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm">
+                    <i class="fas fa-external-link-alt mr-1"></i>Planilha Base
+                </a>
+            </div>
+        </header>
+
+        <!-- Instructions -->
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-info-circle text-blue-400"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-blue-700">
+                        <strong>Como usar:</strong> Use a busca por texto ou filtros por Setor/Modelo. Lembrete do <strong>"filtro forte":</strong> conexões só quando houver gatilhos reais — Launch/Demanda do membro/Setor de alta confiança.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Buscar por texto</label>
+                    <input type="text" id="searchInput" placeholder="Nome da empresa, setor..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Setor</label>
+                    <select id="sectorFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Todos os setores</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Subsetor</label>
+                    <select id="subsectorFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Todos os subsetores</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Modelo</label>
+                    <select id="modelFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Todos os modelos</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-4 flex flex-wrap gap-2">
+                <button onclick="clearFilters()" class="text-sm text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-times mr-1"></i>Limpar filtros
+                </button>
+                <span class="text-sm text-gray-500" id="resultCount">Mostrando todas as empresas</span>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="company-table w-full">
+                    <thead>
+                        <tr>
+                            <th class="text-left">Empresa</th>
+                            <th class="text-left">O que faz</th>
+                            <th class="text-left">Setor</th>
+                            <th class="text-left">Subsetor</th>
+                            <th class="text-left">Modelo</th>
+                            <th class="text-left">Sede</th>
+                            <th class="text-left">Fonte</th>
+                        </tr>
+                    </thead>
+                    <tbody id="companyTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Update Button -->
+        <div class="text-center mt-6">
+            <button class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg">
+                <i class="fas fa-refresh mr-2"></i>Atualizar Lote 2 (Em breve)
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-8 text-center text-sm text-gray-500">
+            <p>Fontes: sites oficiais das empresas citados na conversa. Base de convidados: <a href="https://docs.google.com/spreadsheets/d/1VYcLatHRfu4W58mLdeoc0m7mm4EA-oKNQMol-W6Lm5M/edit?usp=sharing" target="_blank" class="text-blue-600 hover:underline">docs.google.com</a></p>
+        </footer>
+    </div>
+
+    <script>
+        const companies = [
+            {
+                empresa: "Neura",
+                website: "neura.cx",
+                oQueFaz: "Consultoria em estudos comportamentais e 'porquês', decodifica informações em conhecimento para estratégia de negócio",
+                setor: "Consultoria",
+                subsetor: "Pesquisa Comportamental",
+                modelo: "Serviços",
+                porte: "11-50",
+                sede: "São Paulo/SP",
+                fonte: "https://www.neura.cx/"
+            },
+            {
+                empresa: "Jobecam",
+                website: "jobecam.com",
+                oQueFaz: "Plataforma de vídeo seleção e ATS com foco em diversidade e inclusão, entrevistas anônimas para reduzir vieses",
+                setor: "HR Tech",
+                subsetor: "Recrutamento/D&I",
+                modelo: "SaaS",
+                porte: "11-50",
+                sede: "Brasil",
+                fonte: "https://www.jobecam.com/"
+            },
+            {
+                empresa: "Flowls",
+                website: "flowls.com",
+                oQueFaz: "Plataforma all-in-one para gestão logística e comércio exterior, integra sistemas e automatiza operações",
+                setor: "Logística",
+                subsetor: "Comércio Exterior",
+                modelo: "SaaS",
+                porte: "2-10",
+                sede: "Brasil",
+                fonte: "https://www.flowls.com/"
+            },
+            {
+                empresa: "Conectas",
+                website: "conectas.com.br",
+                oQueFaz: "Hub de consultores especialistas em educação corporativa, transforma potencial em impacto sistêmico",
+                setor: "Educação",
+                subsetor: "Corporativa",
+                modelo: "Serviços",
+                porte: "11-50",
+                sede: "São Paulo",
+                fonte: "https://conectas.com.br/somos/"
+            },
+            {
+                empresa: "Livelo",
+                website: "livelo.com.br",
+                oQueFaz: "Programa de pontos e fidelidade para troca por viagens, produtos e serviços, parcerias com varejo",
+                setor: "Loyalty",
+                subsetor: "Programa Fidelidade",
+                modelo: "Plataforma",
+                porte: "200+",
+                sede: "Brasil",
+                fonte: "https://www.livelo.com.br/"
+            },
+            {
+                empresa: "TOTVS",
+                website: "totvs.com",
+                oQueFaz: "Maior empresa de tecnologia do Brasil, desenvolve ERP, RH, marketing digital e soluções de gestão",
+                setor: "Tecnologia",
+                subsetor: "ERP/Software",
+                modelo: "SaaS",
+                porte: "10000+",
+                sede: "São Paulo",
+                fonte: "https://www.totvs.com/"
+            },
+            {
+                empresa: "Kellanova/Kellogg",
+                website: "kelloggs.com.br",
+                oQueFaz: "Multinacional de alimentos, cereais, snacks e produtos de nutrição, marcas como Kellogg's",
+                setor: "Alimentos",
+                subsetor: "CPG/Cereais",
+                modelo: "Indústria",
+                porte: "10000+",
+                sede: "Brasil",
+                fonte: "https://www.kelloggs.com.br/pt_BR/home.html"
+            },
+            {
+                empresa: "Grant Thornton Brasil",
+                website: "grantthornton.com.br",
+                oQueFaz: "Auditoria, consultoria e tributos, combina experiência global com expertise local",
+                setor: "Serviços Profissionais",
+                subsetor: "Auditoria/Consultoria",
+                modelo: "Serviços",
+                porte: "1000+",
+                sede: "18 escritórios BR",
+                fonte: "https://www.grantthornton.com.br/"
+            },
+            {
+                empresa: "Monte Bravo",
+                website: "montebravo.com.br",
+                oQueFaz: "Assessoria e corretora de investimentos, produtos exclusivos para HNW e gestão patrimonial",
+                setor: "Financeiro",
+                subsetor: "Wealth Management",
+                modelo: "Serviços",
+                porte: "50-200",
+                sede: "Brasil",
+                fonte: "https://www.montebravo.com.br/"
+            },
+            {
+                empresa: "CBA B+G",
+                website: "cba-design.com",
+                oQueFaz: "Agência global de branding e design, provoca interações transformadoras entre marcas, pessoas e negócios",
+                setor: "Marketing/Brand",
+                subsetor: "Branding/Design",
+                modelo: "Serviços",
+                porte: "50-200",
+                sede: "São Paulo",
+                fonte: "https://cba-design.com/latam/en/"
+            },
+            {
+                empresa: "Camarinha Comunicação",
+                website: "camarinha.com",
+                oQueFaz: "Estúdio de design gráfico e produção de conteúdo customizado há mais de 22 anos",
+                setor: "Marketing/Brand",
+                subsetor: "Conteúdo/Design",
+                modelo: "Serviços",
+                porte: "11-50",
+                sede: "São Paulo",
+                fonte: "https://camarinha.com/"
+            },
+            {
+                empresa: "ABES",
+                website: "abes.org.br",
+                oQueFaz: "Associação Brasileira das Empresas de Software, representa +2000 empresas do setor de TI",
+                setor: "Associação",
+                subsetor: "Software",
+                modelo: "Entidade",
+                porte: "Associação",
+                sede: "Brasil",
+                fonte: "https://abes.org.br/"
+            },
+            {
+                empresa: "Trip Editora",
+                website: "revistatrip.uol.com.br",
+                oQueFaz: "Revista e mídia digital com conteúdo cultural, lifestyle e transformadores há 40 anos",
+                setor: "Mídia",
+                subsetor: "Editorial/Conteúdo",
+                modelo: "Mídia",
+                porte: "11-50",
+                sede: "São Paulo",
+                fonte: "https://revistatrip.uol.com.br/"
+            },
+            {
+                empresa: "Cubo Comunicação",
+                website: "comunicacaocubo.com.br",
+                oQueFaz: "Agência de marketing 360° com 16+ anos, comunicação, design e desenvolvimento web",
+                setor: "Marketing/Brand",
+                subsetor: "Agência",
+                modelo: "Serviços",
+                porte: "11-50",
+                sede: "Rio de Janeiro",
+                fonte: "https://www.comunicacaocubo.com.br/"
+            },
+            {
+                empresa: "KPMG Brasil",
+                website: "kpmg.com",
+                oQueFaz: "Serviços profissionais globais: audit, tax, advisory para criar e proteger valor sustentável",
+                setor: "Serviços Profissionais",
+                subsetor: "Auditoria/Consultoria",
+                modelo: "Serviços",
+                porte: "10000+",
+                sede: "São Paulo",
+                fonte: "https://kpmg.com/br/pt/home.html"
+            },
+            {
+                empresa: "MultiClara",
+                website: "multiclara.com",
+                oQueFaz: "Soluções integradas em nuvem, colaboração e atendimento, gestão de licenças Google/Microsoft/AWS",
+                setor: "Tecnologia",
+                subsetor: "Cloud/TI",
+                modelo: "Serviços",
+                porte: "11-50",
+                sede: "São Paulo",
+                fonte: "https://multiclara.com/"
+            },
+            {
+                empresa: "Ecotrace",
+                website: "ecotrace.info",
+                oQueFaz: "Plataforma de rastreabilidade com blockchain e IA para commodities do agronegócio",
+                setor: "AgTech",
+                subsetor: "Blockchain/Rastreabilidade",
+                modelo: "SaaS",
+                porte: "11-50",
+                sede: "Brasil",
+                fonte: "https://ecotrace.info/"
+            },
+            {
+                empresa: "Hypera Pharma",
+                website: "hypera.com.br",
+                oQueFaz: "Uma das maiores empresas farmacêuticas do Brasil, líder em diversas categorias de medicamentos",
+                setor: "Farmacêutico",
+                subsetor: "Medicamentos",
+                modelo: "Indústria",
+                porte: "10000+",
+                sede: "São Paulo",
+                fonte: "https://www.hypera.com.br/"
+            },
+            {
+                empresa: "Lumen Finance Brazil",
+                website: "lumenfinance.com.br",
+                oQueFaz: "Câmbio, hedge e trade finance, soluções completas para operações internacionais",
+                setor: "Financeiro",
+                subsetor: "Câmbio/Trade Finance",
+                modelo: "Serviços",
+                porte: "2-10",
+                sede: "Brasil",
+                fonte: "https://lumenfinance.com.br/"
+            },
+            {
+                empresa: "Nuage IT",
+                website: "nuageit.com.br",
+                oQueFaz: "Especialistas em TI e Cloud services, AWS Advanced Partner, soluções inovadoras em nuvem",
+                setor: "Tecnologia",
+                subsetor: "Cloud/MSP",
+                modelo: "Serviços",
+                porte: "11-50",
+                sede: "Brasília",
+                fonte: "https://nuageit.com.br/"
+            },
+            {
+                empresa: "Domani Global",
+                website: "domani.global",
+                oQueFaz: "Climate tech focada em ESG, créditos de carbono e sustentabilidade para empresas",
+                setor: "ESG",
+                subsetor: "Climate Tech",
+                modelo: "Serviços",
+                porte: "11-50",
+                sede: "Brasil",
+                fonte: "https://www.domani.global/"
+            },
+            {
+                empresa: "Fadelito",
+                website: "fadelito.com.br",
+                oQueFaz: "Maior rede especializada em educação infantil do Brasil, desenvolvimento integral de crianças 4m-6 anos",
+                setor: "Educação",
+                subsetor: "Infantil",
+                modelo: "Franchising",
+                porte: "1000+",
+                sede: "São Paulo",
+                fonte: "https://www.fadelito.com.br/"
+            },
+            {
+                empresa: "The Bakery",
+                website: "thebakery.com",
+                oQueFaz: "Gestora de inovação corporativa global, do desenho de estratégia à execução e escala",
+                setor: "Consultoria",
+                subsetor: "Inovação Corporativa",
+                modelo: "Serviços",
+                porte: "200+",
+                sede: "São Paulo",
+                fonte: "https://thebakery.com/pt-br"
+            },
+            {
+                empresa: "Kiwi Consultoria",
+                website: "grupo.kiwi",
+                oQueFaz: "Consultoria estratégica focada em problemas complexos e mudança comportamental permanente",
+                setor: "Consultoria",
+                subsetor: "Estratégica/Comportamental",
+                modelo: "Serviços",
+                porte: "11-50",
+                sede: "Brasil",
+                fonte: "https://grupo.kiwi/"
+            },
+            {
+                empresa: "ClosedGap",
+                website: "closedgap.com",
+                oQueFaz: "Especialista em inovação aberta e disruptiva, ajuda empresas a explorar o inexplorado",
+                setor: "Consultoria",
+                subsetor: "Inovação Aberta",
+                modelo: "Serviços",
+                porte: "11-50",
+                sede: "Global",
+                fonte: "https://closedgap.com/"
+            },
+            {
+                empresa: "Banco BV",
+                website: "bv.com.br",
+                oQueFaz: "Instituição financeira completa: empréstimos, financiamentos, cartões, seguros, private banking",
+                setor: "Financeiro",
+                subsetor: "Banco",
+                modelo: "Instituição Financeira",
+                porte: "10000+",
+                sede: "São Paulo",
+                fonte: "https://www.bv.com.br/"
+            },
+            {
+                empresa: "Atvos",
+                website: "atvos.com",
+                oQueFaz: "Uma das maiores empresas de energia limpa do Brasil, produz etanol, açúcar VHP e eletricidade",
+                setor: "Energia",
+                subsetor: "Bioenergia",
+                modelo: "Indústria",
+                porte: "1000+",
+                sede: "Centro-Oeste BR",
+                fonte: "https://atvos.com/en/"
+            },
+            {
+                empresa: "Sidel",
+                website: "sidel.com",
+                oQueFaz: "Líder em equipamentos e soluções completas para embalagens de alimentos e bebidas em PET",
+                setor: "Industrial",
+                subsetor: "Equipamentos/Embalagens",
+                modelo: "Indústria",
+                porte: "1000+",
+                sede: "Global",
+                fonte: "https://www.sidel.com/pt"
+            },
+            {
+                empresa: "XCELiS",
+                website: "xcelis.com.br",
+                oQueFaz: "Consultoria e operações em Supply Chain, Torre de Controle e gestão de operações logísticas",
+                setor: "Consultoria",
+                subsetor: "Supply Chain",
+                modelo: "Serviços",
+                porte: "200+",
+                sede: "São Paulo",
+                fonte: "https://xcelis.com.br/"
+            },
+            {
+                empresa: "Rede Século 21",
+                website: "app.rs21.com.br",
+                oQueFaz: "Rede de televisão aberta brasileira, pertence à Associação do Senhor Jesus",
+                setor: "Mídia",
+                subsetor: "TV/Radiodifusão",
+                modelo: "Mídia",
+                porte: "50-200",
+                sede: "Valinhos/SP",
+                fonte: "https://pt.wikipedia.org/wiki/Rede_S%C3%A9culo_21"
+            },
+            {
+                empresa: "Lepri",
+                website: "lepri.com.br",
+                oQueFaz: "Produtora de pisos e revestimentos cerâmicos, pioneira em sustentabilidade e inovação",
+                setor: "Construção",
+                subsetor: "Revestimentos",
+                modelo: "Indústria",
+                porte: "200+",
+                sede: "São Paulo",
+                fonte: "https://lepri.com.br/"
+            },
+            {
+                empresa: "Filtros Europa",
+                website: "europa.com.br",
+                oQueFaz: "Pioneira em purificadores de água há quase 40 anos, referência em tratamento de água",
+                setor: "Consumer",
+                subsetor: "Purificadores",
+                modelo: "Indústria",
+                porte: "200+",
+                sede: "Brasil",
+                fonte: "https://www.europa.com.br/"
+            },
+            {
+                empresa: "Wella",
+                website: "wella.com",
+                oQueFaz: "Líder global em produtos profissionais para cabeleireiros, coloração e tratamento capilar",
+                setor: "Cosméticos",
+                subsetor: "Profissional/Beauty",
+                modelo: "Indústria",
+                porte: "10000+",
+                sede: "Global",
+                fonte: "https://www.wella.com/professional/pt-BR/home"
+            },
+            {
+                empresa: "Vitacon",
+                website: "vitacon.com.br",
+                oQueFaz: "Incorporadora focada em moradias compactas inteligentes com tecnologia e economia compartilhada",
+                setor: "Real Estate",
+                subsetor: "Incorporação",
+                modelo: "Desenvolvimento",
+                porte: "200+",
+                sede: "São Paulo",
+                fonte: "https://vitacon.com.br/"
+            },
+            {
+                empresa: "Vitacon Private",
+                website: "vitacon.com.br",
+                oQueFaz: "Portfólio exclusivo de investimentos imobiliários em São Paulo para investidores exigentes",
+                setor: "Real Estate",
+                subsetor: "Investimentos",
+                modelo: "Investimentos",
+                porte: "50-200",
+                sede: "São Paulo",
+                fonte: "https://empreendimentos.vitacon.com.br/ld-private"
+            },
+            {
+                empresa: "Carrefour Brasil",
+                website: "carrefour.com.br",
+                oQueFaz: "Maior grupo varejista alimentar do Brasil, formatos Atacadão, Carrefour e Sam's Club",
+                setor: "Varejo",
+                subsetor: "Alimentar",
+                modelo: "Varejo",
+                porte: "10000+",
+                sede: "São Paulo",
+                fonte: "https://www.carrefour.com.br/"
+            },
+            {
+                empresa: "Procfit",
+                website: "procfit.com.br",
+                oQueFaz: "ERP e soluções de gestão empresarial especializadas em varejo e distribuição brasileira",
+                setor: "Tecnologia",
+                subsetor: "ERP/Varejo",
+                modelo: "SaaS",
+                porte: "50-200",
+                sede: "Santos/SP",
+                fonte: "https://procfit.com.br/"
+            },
+            {
+                empresa: "Julio Okubo",
+                website: "juliookubo.com.br",
+                oQueFaz: "Alta joalheria com 70+ anos, criação artesanal de joias exclusivas com design contemporâneo",
+                setor: "Luxury",
+                subsetor: "Joias",
+                modelo: "Varejo/Indústria",
+                porte: "50-200",
+                sede: "Brasil",
+                fonte: "https://www.juliookubo.com.br/"
+            },
+            {
+                empresa: "AAPSA",
+                website: "aapsa.org.br",
+                oQueFaz: "Associação Brasileira de RH, fomenta desenvolvimento corporativo e networking para gestores de pessoas",
+                setor: "Associação",
+                subsetor: "RH",
+                modelo: "Entidade",
+                porte: "Associação",
+                sede: "São Paulo",
+                fonte: "https://aapsa.org.br/"
+            },
+            {
+                empresa: "Bichara Advogados",
+                website: "bicharalaw.com.br",
+                oQueFaz: "Escritório full-service especializado em contencioso, arbitragem e compliance corporativo",
+                setor: "Serviços Profissionais",
+                subsetor: "Advocacia",
+                modelo: "Serviços",
+                porte: "50-200",
+                sede: "São Paulo/Rio",
+                fonte: "https://www.bicharalaw.com.br/"
+            },
+            {
+                empresa: "Preâmbulo Tech",
+                website: "preambulo.com.br",
+                oQueFaz: "Pioneira em legaltech no Brasil, software jurídico com IA para otimizar operações de advocacia",
+                setor: "Tecnologia",
+                subsetor: "Legaltech",
+                modelo: "SaaS",
+                porte: "50-200",
+                sede: "Curitiba",
+                fonte: "https://preambulo.com.br/"
+            },
+            {
+                empresa: "You IT Tecnologia",
+                website: "youit.com.br",
+                oQueFaz: "Referência nacional em cibersegurança e infraestrutura TI, mais de 10 anos protegendo empresas",
+                setor: "Tecnologia",
+                subsetor: "Cibersegurança",
+                modelo: "Serviços",
+                porte: "50-200",
+                sede: "São Paulo",
+                fonte: "https://youit.com.br/"
+            },
+            {
+                empresa: "Ekantika",
+                website: "ekantika.co",
+                oQueFaz: "Consultoria de transformação organizacional, integra pessoas, processos e tecnologia",
+                setor: "Consultoria",
+                subsetor: "Change Management",
+                modelo: "Serviços",
+                porte: "11-50",
+                sede: "Brasil",
+                fonte: "https://www.ekantika.co/"
+            },
+            {
+                empresa: "RGL Advogados",
+                website: "rgladvogados.com",
+                oQueFaz: "Escritório full-service focado no mercado corporativo, compliance, proteção de dados e societário",
+                setor: "Serviços Profissionais",
+                subsetor: "Advocacia Corporativa",
+                modelo: "Serviços",
+                porte: "50-200",
+                sede: "Alphaville/SP",
+                fonte: "https://rgladvogados.com/"
+            },
+            {
+                empresa: "Vivo/Telefônica",
+                website: "vivo.com.br",
+                oQueFaz: "Líder em telecomunicações no Brasil, oferece 5G, fibra, celular e serviços digitais",
+                setor: "Telecom",
+                subsetor: "Operadora",
+                modelo: "Telecom",
+                porte: "10000+",
+                sede: "São Paulo",
+                fonte: "https://vivo.com.br/para-voce"
+            },
+            {
+                empresa: "BMW Brasil",
+                website: "bmw.com.br",
+                oQueFaz: "Montadora alemã premium, comercializa carros, motos e serviços automotivos no Brasil",
+                setor: "Automotivo",
+                subsetor: "Premium/Luxury",
+                modelo: "Indústria/Varejo",
+                porte: "1000+",
+                sede: "Araquari/SC",
+                fonte: "https://www.bmw.com.br/pt/index.html"
+            },
+            {
+                empresa: "DIMEP",
+                website: "dimep.com.br",
+                oQueFaz: "Referência há 80+ anos em controle de ponto, acesso de pessoas/veículos e automação comercial",
+                setor: "Tecnologia",
+                subsetor: "Controle/Acesso",
+                modelo: "Indústria/Serviços",
+                porte: "200+",
+                sede: "São Paulo",
+                fonte: "https://www.dimep.com.br/"
+            },
+            {
+                empresa: "BlackWin",
+                website: "blackwin.co",
+                oQueFaz: "Primeira plataforma do Brasil para mulheres negras se tornarem investidoras-anjo",
+                setor: "Investimentos",
+                subsetor: "Angel Investing/D&I",
+                modelo: "Plataforma",
+                porte: "2-10",
+                sede: "Brasil",
+                fonte: "https://www.blackwin.co/"
+            },
+            {
+                empresa: "Link School",
+                website: "lsb.edu.br",
+                oQueFaz: "Primeira faculdade do Brasil dedicada ao empreendedorismo, metodologia inovadora e perspectiva global",
+                setor: "Educação",
+                subsetor: "Empreendedorismo",
+                modelo: "Educação Superior",
+                porte: "50-200",
+                sede: "São Paulo",
+                fonte: "https://lsb.edu.br/"
+            },
+            {
+                empresa: "Bee Gold & Co",
+                website: "beegoldandco.com.br",
+                oQueFaz: "Criação de joias colaborativas e exclusivas que celebram marcos corporativos e conquistas pessoais",
+                setor: "Luxury",
+                subsetor: "Joias Colaborativas",
+                modelo: "Serviços/Varejo",
+                porte: "2-10",
+                sede: "Brasil",
+                fonte: "https://beegoldandco.com.br/"
+            },
+            {
+                empresa: "Agro Assaí",
+                website: "agroassai.com.br",
+                oQueFaz: "Distribuidora de máquinas, peças e acessórios para agricultura, jardinagem e corte há 66 anos",
+                setor: "Agro",
+                subsetor: "Distribuidora",
+                modelo: "Distribuição",
+                porte: "50-200",
+                sede: "São Paulo",
+                fonte: "https://www.agroassai.com.br/"
+            },
+            {
+                empresa: "EBEM",
+                website: "ebemoficial.com",
+                oQueFaz: "Educação e mentorias para mulheres empresárias, foco em gestão, liderança e crescimento",
+                setor: "Educação",
+                subsetor: "Empresarial/Gênero",
+                modelo: "Serviços",
+                porte: "2-10",
+                sede: "Brasil",
+                fonte: "https://ebemoficial.com/"
+            },
+            {
+                empresa: "CNN Viagem & Gastronomia",
+                website: "cnnbrasil.com.br",
+                oQueFaz: "Canal especializado da CNN Brasil em conteúdo de viagens, destinos e gastronomia",
+                setor: "Mídia",
+                subsetor: "TV/Lifestyle",
+                modelo: "Mídia",
+                porte: "1000+",
+                sede: "São Paulo",
+                fonte: "https://www.cnnbrasil.com.br/viagemegastronomia/"
+            },
+            {
+                empresa: "GOL Linhas Aéreas",
+                website: "voegol.com.br",
+                oQueFaz: "Companhia aérea brasileira, voos domésticos e internacionais, programa de fidelidade Smiles",
+                setor: "Aviação",
+                subsetor: "Aérea",
+                modelo: "Transporte",
+                porte: "10000+",
+                sede: "São Paulo",
+                fonte: "https://www.voegol.com.br/"
+            },
+            {
+                empresa: "Esfera Brasil",
+                website: "esferabrasil.com.br",
+                oQueFaz: "Think tank empresarial apartidário, fomenta debates entre empresários e poderes constituídos",
+                setor: "Think Tank",
+                subsetor: "Política/Negócios",
+                modelo: "Organização",
+                porte: "11-50",
+                sede: "São Paulo",
+                fonte: "https://esferabrasil.com.br/"
+            },
+            {
+                empresa: "Warde Advogados",
+                website: "warde.com.br",
+                oQueFaz: "Escritório especializado em contencioso corporativo, anticorrupção e matérias regulatórias",
+                setor: "Serviços Profissionais",
+                subsetor: "Contencioso/Regulatório",
+                modelo: "Serviços",
+                porte: "50-200",
+                sede: "São Paulo",
+                fonte: "https://warde.com.br/"
+            },
+            {
+                empresa: "Cultura Inglesa",
+                website: "culturainglesa.com.br",
+                oQueFaz: "Escola de inglês com 90+ anos de tradição, cursos presenciais e online para todas as idades",
+                setor: "Educação",
+                subsetor: "Idiomas",
+                modelo: "Educação",
+                porte: "1000+",
+                sede: "São Paulo",
+                fonte: "https://www.culturainglesa.com.br/"
+            },
+            {
+                empresa: "GoWork",
+                website: "gowork.com.br",
+                oQueFaz: "Maior rede brasileira de coworking, escritórios compartilhados com rooftops em 14 prédios SP",
+                setor: "Real Estate",
+                subsetor: "Coworking",
+                modelo: "Serviços",
+                porte: "200+",
+                sede: "São Paulo",
+                fonte: "https://www.gowork.com.br/"
+            },
+            {
+                empresa: "Pandora Brasil",
+                website: "pandorajoias.com.br",
+                oQueFaz: "Joalheria global, design contemporâneo finalizado à mão com materiais de alta qualidade",
+                setor: "Luxury",
+                subsetor: "Joias",
+                modelo: "Varejo",
+                porte: "1000+",
+                sede: "Global/BR",
+                fonte: "https://www.pandorajoias.com.br/"
+            },
+            {
+                empresa: "CQS Advogados",
+                website: "cqsfv.com.br",
+                oQueFaz: "Referência em consultoria jurídica para Mídia, Entretenimento, Cultura, Tecnologia e Startups",
+                setor: "Serviços Profissionais",
+                subsetor: "Advocacia Especializada",
+                modelo: "Serviços",
+                porte: "50-200",
+                sede: "São Paulo",
+                fonte: "https://cqsfv.com.br/"
+            },
+            {
+                empresa: "IFTL",
+                website: "iftl.ai",
+                oQueFaz: "Instituto de Formação em Tecnologia e Liderança, maior comunidade do país focada em IA",
+                setor: "Educação",
+                subsetor: "Tecnologia/IA",
+                modelo: "EdTech",
+                porte: "50-200",
+                sede: "São Paulo",
+                fonte: "https://www.iftl.ai/"
+            },
+            {
+                empresa: "Claro Brasil",
+                website: "claro.com.br",
+                oQueFaz: "Operadora líder em telecomunicações, 5G mais rápido do Brasil, internet fibra e mobile",
+                setor: "Telecom",
+                subsetor: "Operadora",
+                modelo: "Telecom",
+                porte: "10000+",
+                sede: "São Paulo",
+                fonte: "https://www.claro.com.br/institucional"
+            },
+            {
+                empresa: "Antler Brasil",
+                website: "antler.co",
+                oQueFaz: "Venture capital global especializada em pre-seed, programa de residência para founders",
+                setor: "Investimentos",
+                subsetor: "Venture Capital",
+                modelo: "VC",
+                porte: "200+",
+                sede: "São Paulo",
+                fonte: "https://www.antler.co/residency/brazil"
+            },
+            {
+                empresa: "McKinsey & Company",
+                website: "mckinsey.com",
+                oQueFaz: "Consultoria estratégica global, assessora líderes em transformação organizacional e crescimento",
+                setor: "Consultoria",
+                subsetor: "Estratégica",
+                modelo: "Serviços",
+                porte: "10000+",
+                sede: "Global/SP",
+                fonte: "Validar"
+            },
+            {
+                empresa: "The Walt Disney",
+                website: "disney.com",
+                oQueFaz: "Conglomerado de entretenimento global, licenciamento, mídia, parques e produtos",
+                setor: "Entertainment",
+                subsetor: "Licensing/Mídia",
+                modelo: "Corporação",
+                porte: "10000+",
+                sede: "Global/BR",
+                fonte: "Validar"
+            },
+            {
+                empresa: "Oracle Brasil",
+                website: "oracle.com",
+                oQueFaz: "Líder global em software empresarial, banco de dados, cloud e inteligência artificial",
+                setor: "Tecnologia",
+                subsetor: "Enterprise Software",
+                modelo: "SaaS",
+                porte: "10000+",
+                sede: "Global/SP",
+                fonte: "Validar"
+            },
+            {
+                empresa: "Deutsche Bank",
+                website: "db.com",
+                oQueFaz: "Banco de investimento global, serviços financeiros corporativos e private banking",
+                setor: "Financeiro",
+                subsetor: "Investment Banking",
+                modelo: "Banco",
+                porte: "10000+",
+                sede: "Global/SP",
+                fonte: "Validar"
+            },
+            {
+                empresa: "Grupo SBF",
+                website: "gruposbf.com.br",
+                oQueFaz: "Maior grupo de varejo esportivo da América Latina (Centauro, Nike stores)",
+                setor: "Varejo",
+                subsetor: "Esportivo",
+                modelo: "Varejo",
+                porte: "10000+",
+                sede: "São Caetano/SP",
+                fonte: "Validar"
+            },
+            {
+                empresa: "2.5 Ventures",
+                website: "doisemeio.ventures",
+                oQueFaz: "Venture builder do setor 2.5, ajuda startups de alto impacto social a construir negócios",
+                setor: "Investimentos",
+                subsetor: "Venture Builder",
+                modelo: "VC",
+                porte: "11-50",
+                sede: "Campinas/SP",
+                fonte: "https://doisemeio.ventures/"
+            },
+            {
+                empresa: "Academia da Marca",
+                website: "academiadamarca.com.br",
+                oQueFaz: "Agência de Estímulos de Resultado, cocriação estratégica e operacionalização em marketing",
+                setor: "Marketing/Brand",
+                subsetor: "Agência",
+                modelo: "Serviços",
+                porte: "11-50",
+                sede: "São Paulo",
+                fonte: "https://academiadamarca.com.br/"
+            }
+        ];
+
+        let filteredCompanies = [...companies];
+
+        function renderTable() {
+            const tbody = document.getElementById('companyTableBody');
+            tbody.innerHTML = '';
+            
+            filteredCompanies.forEach(company => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="font-medium text-gray-900">${company.empresa}</td>
+                    <td class="text-gray-600">${company.oQueFaz}</td>
+                    <td><span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">${company.setor}</span></td>
+                    <td class="text-gray-600">${company.subsetor}</td>
+                    <td><span class="inline-flex px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-800">${company.modelo}</span></td>
+                    <td class="text-gray-600">${company.sede}</td>
+                    <td><a href="${company.fonte}" target="_blank" class="text-blue-600 hover:underline text-xs"><i class="fas fa-external-link-alt mr-1"></i>${company.website}</a></td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            document.getElementById('resultCount').textContent = `Mostrando ${filteredCompanies.length} de ${companies.length} empresas`;
+        }
+
+        function populateFilters() {
+            const sectors = [...new Set(companies.map(c => c.setor))].sort();
+            const subsectors = [...new Set(companies.map(c => c.subsetor))].sort();
+            const models = [...new Set(companies.map(c => c.modelo))].sort();
+            
+            const sectorSelect = document.getElementById('sectorFilter');
+            const subsectorSelect = document.getElementById('subsectorFilter');
+            const modelSelect = document.getElementById('modelFilter');
+            
+            sectors.forEach(sector => {
+                const option = document.createElement('option');
+                option.value = sector;
+                option.textContent = sector;
+                sectorSelect.appendChild(option);
+            });
+            
+            subsectors.forEach(subsector => {
+                const option = document.createElement('option');
+                option.value = subsector;
+                option.textContent = subsector;
+                subsectorSelect.appendChild(option);
+            });
+            
+            models.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model;
+                option.textContent = model;
+                modelSelect.appendChild(option);
+            });
+        }
+
+        function filterCompanies() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const sectorFilter = document.getElementById('sectorFilter').value;
+            const subsectorFilter = document.getElementById('subsectorFilter').value;
+            const modelFilter = document.getElementById('modelFilter').value;
+            
+            filteredCompanies = companies.filter(company => {
+                const matchesSearch = !searchTerm || 
+                    company.empresa.toLowerCase().includes(searchTerm) ||
+                    company.oQueFaz.toLowerCase().includes(searchTerm) ||
+                    company.setor.toLowerCase().includes(searchTerm) ||
+                    company.subsetor.toLowerCase().includes(searchTerm);
+                
+                const matchesSector = !sectorFilter || company.setor === sectorFilter;
+                const matchesSubsector = !subsectorFilter || company.subsetor === subsectorFilter;
+                const matchesModel = !modelFilter || company.modelo === modelFilter;
+                
+                return matchesSearch && matchesSector && matchesSubsector && matchesModel;
+            });
+            
+            renderTable();
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('sectorFilter').value = '';
+            document.getElementById('subsectorFilter').value = '';
+            document.getElementById('modelFilter').value = '';
+            filteredCompanies = [...companies];
+            renderTable();
+        }
+
+        function exportToCSV() {
+            const csvContent = "data:text/csv;charset=utf-8," + 
+                "Empresa,Website,O que faz,Setor,Subsetor,Modelo,Porte,Sede,Fonte\n" +
+                filteredCompanies.map(company => 
+                    `"${company.empresa}","${company.website}","${company.oQueFaz}","${company.setor}","${company.subsetor}","${company.modelo}","${company.porte}","${company.sede}","${company.fonte}"`
+                ).join("\n");
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "sweet_secrets_empresas_setores.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            populateFilters();
+            renderTable();
+            
+            document.getElementById('searchInput').addEventListener('input', filterCompanies);
+            document.getElementById('sectorFilter').addEventListener('change', filterCompanies);
+            document.getElementById('subsectorFilter').addEventListener('change', filterCompanies);
+            document.getElementById('modelFilter').addEventListener('change', filterCompanies);
+        });
+    </script>
+</body>
+</html>
+    <script id="html_badge_script1">
+        window.__genspark_remove_badge_link = "https://www.genspark.ai/api/html_badge/" +
+            "remove_badge?token=To%2FBnjzloZ3UfQdcSaYfDiFgypz7K6NE%2F9zug35batDu0A3wrP4rxhLvZ8BK1c%2BB5IB5fAnr3Fc%2BOWDSgd43kAbZNdjXNxKXHTDFlS9BZREiJhbRHf1KvfsadO98qyGnUuOqFXhur9Vl44PPVN9ADya%2Bz7Y24jPPPwX4EtbsTi%2BFcOyGLvvjg8TiFbPSX%2FqqB2uakeXBHvISCKG8%2BR8BPBmCtGlV5g0fShEW0dcAXB%2BEEMHuznD1VuzU%2FEGm0Af2vA0Re1J3lCN22VdlhNmcxMURgEspdtzzFjCMMj9%2FIEfPsiUbBtfPWDEaJAk%2BGI19HVemtQY%2B%2BF6rB82Kjlh0QdkH8Hbnke6z5wr%2F4EuB0M3Gqk99ML%2BTje5PjuaS0Y%2BrNmfKnHVajn8GJ4d6OUjlVClZMHaQEfIumqDXZ9HA5O6RvYbeWhIJeb7au4i4MbF%2F2ehiP9ixVrrrHBIS4oKzuLcoVZ1UlAhiRw9Pp703wRzqc5GMJw%2BPupl2uGllm5LnKnWT%2FGGbtjUcqqTuyujzgFcGS8zVTBKU7RY1G5Vdj4E%3D";
+        window.__genspark_locale = "pt-BR";
+        window.__genspark_token = "To/BnjzloZ3UfQdcSaYfDiFgypz7K6NE/9zug35batDu0A3wrP4rxhLvZ8BK1c+B5IB5fAnr3Fc+OWDSgd43kAbZNdjXNxKXHTDFlS9BZREiJhbRHf1KvfsadO98qyGnUuOqFXhur9Vl44PPVN9ADya+z7Y24jPPPwX4EtbsTi+FcOyGLvvjg8TiFbPSX/qqB2uakeXBHvISCKG8+R8BPBmCtGlV5g0fShEW0dcAXB+EEMHuznD1VuzU/EGm0Af2vA0Re1J3lCN22VdlhNmcxMURgEspdtzzFjCMMj9/IEfPsiUbBtfPWDEaJAk+GI19HVemtQY++F6rB82Kjlh0QdkH8Hbnke6z5wr/4EuB0M3Gqk99ML+Tje5PjuaS0Y+rNmfKnHVajn8GJ4d6OUjlVClZMHaQEfIumqDXZ9HA5O6RvYbeWhIJeb7au4i4MbF/2ehiP9ixVrrrHBIS4oKzuLcoVZ1UlAhiRw9Pp703wRzqc5GMJw+Pupl2uGllm5LnKnWT/GGbtjUcqqTuyujzgFcGS8zVTBKU7RY1G5Vdj4E=";
+    </script>
+    
+    <script id="html_notice_dialog_script" src="https://www.genspark.ai/notice_dialog.js"></script>
+    
